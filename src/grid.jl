@@ -4,7 +4,7 @@ Pkg.instantiate
 
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
 
-function setup_grid(length, height, phi, h=0.5)
+function setup_grid(length, height, phi, h=1)
     a = length/2
     Gmsh.initialize()
     gmsh.option.set_number("General.Verbosity", 2)
@@ -125,7 +125,7 @@ function setup_grid(length, height, phi, h=0.5)
 
 end
 
-grid = setup_grid(28.0,4.0,45)
+grid = setup_grid(28.0,4.0,40)
 
 #fig, ax, plot = ferriteplot(grid)
 #display(fig)
