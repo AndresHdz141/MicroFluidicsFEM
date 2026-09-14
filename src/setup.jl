@@ -45,9 +45,9 @@ function setup_constraints(dh, angle, height)
     c_in2 = get_facetset_center(dh.grid, "IN2")
 
 
-    function parabolic_velocity(x,t, U_max, height, θ, xc, yc)
-        dx = x[1] - xc
-        dy = x[2] - yc
+    function parabolic_velocity(x,t, U_max, height, θ, center)
+        dx = x[1] - center[1]
+        dy = x[2] - center[2]
         V_x = U_max * (1-(-dx*sin(θ)+dy*cos(θ))^2/((height/2)^2))*cos(θ)
         V_y = U_max * (1-(-dx*sin(θ)+dy*cos(θ))^2/((height/2)^2))*sin(θ)
         return Vec{2}((V_x, V_y))
