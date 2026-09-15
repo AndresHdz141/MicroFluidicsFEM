@@ -1,14 +1,16 @@
 module grid
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
-export setup_grid
+ export setup_grid
 
-    function setup_grid(length, height, phi, h=0.5)
-        a = length/2
+    function setup_grid(L, height, phi, h=0.5)
+        a = L/2
         Gmsh.initialize()
         gmsh.option.set_number("General.Verbosity", 2)
 
         #Coordenadas de puntos
+        n = 6 # Cantidad de ranuras
+        s = L/4n
         #X
         x1 = a
         x2 = a+a*cosd(phi)
@@ -17,6 +19,13 @@ export setup_grid
         x5 = a + (a+height)*cosd(phi)
         x6 = a + a*cosd(phi)
         x7 = a
+        # Coordenadas de los puntos inferiores de las ranuras
+        x_ranuras = Float64[]
+        x_0 = x7 - s
+        for i in 1:2n-1
+            push!(x_ranuras, x_0 - i * 2 * s)
+        end
+        println("x_ranuras: ", x_ranuras)
         #Y
         y1 = 0
         y2 = -a*sind(phi)
@@ -25,6 +34,8 @@ export setup_grid
         y5 = a*sind(phi)+height/2
         y6 = height+a*sind(phi)
         y7 = height
+        # Coordenadas de los puntos superiores de las ranuras
+        y_ranuras = height + height/4
 
         #Add points
         #Origin
@@ -39,9 +50,17 @@ export setup_grid
         p6 = gmsh.model.geo.add_point(x6, y6,0.0, h)
         p7 = gmsh.model.geo.add_point(x7, y7,0.0, h)
 
-        #Symmetry at height h
-        p8 = gmsh.model.geo.add_point(0.0, height,0.0, h)
-
+        #Groove points
+        p8 = gmsh.model.geo.add_point(x_0, height,0.0, h)
+        p8_up = gmsh.model.geo.add_point(x_0, y_ranuras,0.0, h)
+        points_ranuras_inf = Int[]
+        points_ranuras_sup = Int[]
+        for i in 1:2n-1
+            push!(points_ranuras_inf, gmsh.model.geo.add_point(x_ranuras[i], height,0.0, h))
+            push!(points_ranuras_sup, gmsh.model.geo.add_point(x_ranuras[i], y_ranuras,0.0, h))
+        end
+        println("points_ranuras_inf: ", points_ranuras_inf)
+        println("points_ranuras_sup: ", points_ranuras_sup)
         #Left symmetry
         p9 = gmsh.model.geo.add_point(-x7, y7,0.0, h)
         p10 = gmsh.model.geo.add_point(-x6, y6,0.0, h)
@@ -54,10 +73,10 @@ export setup_grid
         #Generate lines
         #Pared inferior 14, 15, o, 1, 2
         #Pared derecha 3, 4, 5
-        #Pared superior 6,7,8,9,10
+        #Pared superior 6,7,ranuras,9,10
         #Pared izquieda 11,12,13
 
-        #Inlets 10-11 y 13-14
+        #Inlets 9-10 y 12-13
         #Outlets 2-3 y 5-6
 
         l1 = gmsh.model.geo.add_line(p14,p15)
@@ -70,7 +89,30 @@ export setup_grid
         l8 = gmsh.model.geo.add_line(p5,p6) #OUTLET
         l9 = gmsh.model.geo.add_line(p6,p7)
         l10 = gmsh.model.geo.add_line(p7,p8)
-        l11 = gmsh.model.geo.add_line(p8,p9)
+        groove_points = Int[p8,p8_up]
+
+        i = 1
+        while i + 1 <= length(points_ranuras_inf)
+        push!(groove_points, points_ranuras_sup[i])   # sube al tope de la ranura
+        push!(groove_points, points_ranuras_inf[i])   # llega a la pared (subida empieza aquí)
+        push!(groove_points, points_ranuras_inf[i+1]) # baja de vuelta a la pared    
+        push!(groove_points, points_ranuras_sup[i+1]) # tramo plano arriba
+        i += 2
+        end
+        println("groove_points: ", groove_points)
+        # Si 2n-1 es impar (como con n=5 -> 9 puntos), sobra un índice: se agrega como
+        # tramo plano final antes de cerrar contra p9.
+        if i <= length(points_ranuras_inf)
+            push!(groove_points, points_ranuras_sup[i])
+            push!(groove_points, points_ranuras_inf[i])
+        end
+        println("groove_points: ", groove_points)
+        lines_ranuras = Int[]
+        for k in 1:length(groove_points)-1
+            push!(lines_ranuras, gmsh.model.geo.add_line(groove_points[k], groove_points[k+1]))
+        end
+        println("lines_ranuras: ", lines_ranuras)
+        l11 = gmsh.model.geo.add_line(groove_points[end], p9)
         l12 = gmsh.model.geo.add_line(p9,p10)
         l13 = gmsh.model.geo.add_line(p10,p11) #INLET
         l14 = gmsh.model.geo.add_line(p11,p12)
@@ -79,8 +121,8 @@ export setup_grid
 
         #Create loop and surface
         loop = gmsh.model.geo.add_curve_loop(
-            [l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16])
-
+            [l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,lines_ranuras...,l11,l12,l13,l14,l15,l16])
+        println("loop: ", loop)
         surf = gmsh.model.geo.add_plane_surface([loop])
 
         #Synchronize model
@@ -91,7 +133,7 @@ export setup_grid
         #Paredes
         gmsh.model.add_physical_group(1,[l1,l2,l3,l4], -1, "CH1")       #CH1 es la pared 1 (Inferior)
         gmsh.model.add_physical_group(1,[l6,l7], -1, "CH2")             #CH2 es la pared 2 (Derecha)
-        gmsh.model.add_physical_group(1,[l9,l10,l11,l12], -1, "CH3")    #CH3 es la pared 3 (Superior)
+        gmsh.model.add_physical_group(1,[l9,l10,lines_ranuras...,l11,l12], -1, "CH3")    #CH3 es la pared 3 (Superior)
         gmsh.model.add_physical_group(1,[l14,l15], -1, "CH4")           #CH4 es la pared 4 (Izquierda)
 
         #Inlets
@@ -114,13 +156,13 @@ export setup_grid
             gmsh.write(path)
             togrid(path)
         end
-        #=    
+        #=
         if !("-nopopup" in ARGS)
             gmsh.fltk.run()
         end
-        =#
+        
         Gmsh.finalize()
-
+        =#
         return grid
 
     end
