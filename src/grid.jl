@@ -1,7 +1,9 @@
 module grid
-using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
-    function setup_grid(length, height, phi, h=1)
+export setup_grid
+
+    function setup_grid(length, height, phi, h=0.5)
         a = length/2
         Gmsh.initialize()
         gmsh.option.set_number("General.Verbosity", 2)
@@ -112,10 +114,11 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
             gmsh.write(path)
             togrid(path)
         end
-            if !("-nopopup" in ARGS)
+        #=    
+        if !("-nopopup" in ARGS)
             gmsh.fltk.run()
         end
-
+        =#
         Gmsh.finalize()
 
         return grid

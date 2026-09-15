@@ -1,5 +1,7 @@
 module setup
-export setup_fevalues
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
+
+export setup_fevalues, setup_dofs, setup_constraints
 
 
 
@@ -20,19 +22,17 @@ function setup_dofs(grid, ipu, ipp)
     return dh
 end
 #Busca el centro del facetset (para buscar el centro del eje.)
-function get_facetset_center(grid, set_name::String)
-    facet_set = getfacetset(grid, set_name)
-    total_coord = Vec{2}((0.0,0.0))
-    count = 0 
-    for (cell_idx, facet_idx) in facet_set
-        facet_coords = getcoordinates(grid, cell_idx)[getnodes(grid.cells[cell_idx][facet_idx])]
-        for pt in facet_coords
-            total_coord += pt 
-            count+=1
-        end
+function boundary_center(grid::Ferrite.AbstractGrid, setname::String)
+    ids = Set{Int}()
+    for fi in getfacetset(grid, setname)
+        cellid, localfacet = fi
+        cell = getcells(grid, cellid)
+        union!(ids, Ferrite.facets(cell)[localfacet])
     end
-    return total_coord/count
+    coords = [grid.nodes[i].x for i in ids]
+    return sum(coords) / length(coords)
 end
+
 
 
 function setup_constraints(dh, angle, height)
@@ -41,8 +41,8 @@ function setup_constraints(dh, angle, height)
     θ = deg2rad(angle)
     U_max1 = 75.0 #μm/s
     U_max2 = 120.0 #μm/s
-    c_in1 = get_facetset_center(dh.grid, "IN1")
-    c_in2 = get_facetset_center(dh.grid, "IN2")
+    c_in1 = boundary_center(dh.grid, "IN1")
+    c_in2 = boundary_center(dh.grid, "IN2")
 
 
     function parabolic_velocity(x,t, U_max, height, θ, center)
@@ -50,7 +50,7 @@ function setup_constraints(dh, angle, height)
         dy = x[2] - center[2]
         V_x = U_max * (1-(-dx*sin(θ)+dy*cos(θ))^2/((height/2)^2))*cos(θ)
         V_y = U_max * (1-(-dx*sin(θ)+dy*cos(θ))^2/((height/2)^2))*sin(θ)
-        return Vec{2}((V_x, V_y))
+        return Ferrite.Vec{2}((V_x, V_y))
     end
     input1 = Dirichlet(:u, getfacetset(dh.grid, "IN1"), (x,t) -> parabolic_velocity(x,t,U_max1, height,-θ, c_in1), [1,2])
     input2 = Dirichlet(:u, getfacetset(dh.grid, "IN2"), (x,t) -> parabolic_velocity(x,t,U_max2, height, θ, c_in2), [1,2])
@@ -68,7 +68,7 @@ function setup_constraints(dh, angle, height)
 
     #finalize
     close!(ch)
-    update!(ch,0)
+    Ferrite.update!(ch,0)
 
     return ch
 
