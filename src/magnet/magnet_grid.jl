@@ -8,7 +8,7 @@ export magnet_setup_grid
     function magnet_setup_grid(L, height, h=0.05)
 
         a = L/2
-        n_imanes =  6
+        n_imanes =  9
         paso = L / n_imanes
         lado = 0.6 * paso
 
@@ -111,13 +111,8 @@ export magnet_setup_grid
 
         #Paredes
         gmsh.model.add_physical_group(1,[l1,l2,l3,l4], -1, "AIR_Lm")       #Aire
-
-
         
         #Imanes
-
-  
-       
 
         gmsh.model.add_physical_group(2,[surf], -1, "AIR")
         gmsh.model.add_physical_group(2, surfs, -1, "magnets")

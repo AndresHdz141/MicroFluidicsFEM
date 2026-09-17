@@ -4,9 +4,9 @@ Pkg.instantiate()
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
 
 
-include("../src/grid.jl")
-include("../src/setup.jl")
-include("../src/assemble.jl")
+include("../src/fluid/grid.jl")
+include("../src/fluid/setup.jl")
+include("../src/fluid/assemble.jl")
 
 using .grid
 using .assemble
