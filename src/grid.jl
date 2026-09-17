@@ -9,8 +9,8 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         gmsh.option.set_number("General.Verbosity", 2)
 
         #Coordenadas de puntos
-        n = 6 # Cantidad de ranuras
-        s = L/4n
+        n = 6     # Cantidad de ranuras
+        s = L/4n  # 2s = grosor de la ranura
         #X
         x1 = a
         x2 = a+a*cosd(phi)
@@ -20,12 +20,12 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         x6 = a + a*cosd(phi)
         x7 = a
         # Coordenadas de los puntos inferiores de las ranuras
-        x_ranuras = Float64[]
-        x_0 = x7 - s
-        for i in 1:2n-1
-            push!(x_ranuras, x_0 - i * 2 * s)
+        x_ranuras = Float64[]                 # Matriz para almacenar las coordenadas x de las ranuras
+        x_0 = x7 - s                          # Coordenada x de la primera ranura
+        for i in 1:2n-1                       # Generar las coordenadas x de las ranuras
+            push!(x_ranuras, x_0 - i * 2 * s) 
         end
-        println("x_ranuras: ", x_ranuras)
+        
         #Y
         y1 = 0
         y2 = -a*sind(phi)
@@ -35,7 +35,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         y6 = height+a*sind(phi)
         y7 = height
         # Coordenadas de los puntos superiores de las ranuras
-        y_ranuras = height + height/4
+        y_ranuras = height + height/4 # Altura de las ranuras
 
         #Add points
         #Origin
@@ -51,16 +51,15 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         p7 = gmsh.model.geo.add_point(x7, y7,0.0, h)
 
         #Groove points
-        p8 = gmsh.model.geo.add_point(x_0, height,0.0, h)
-        p8_up = gmsh.model.geo.add_point(x_0, y_ranuras,0.0, h)
-        points_ranuras_inf = Int[]
-        points_ranuras_sup = Int[]
-        for i in 1:2n-1
+        p8 = gmsh.model.geo.add_point(x_0, height,0.0, h)       # Punto de la primera ranura
+        p8_up = gmsh.model.geo.add_point(x_0, y_ranuras,0.0, h) # Punto superior de la primera ranura
+        points_ranuras_inf = Int[] # Matriz para almacenar los puntos inferiores de las ranuras
+        points_ranuras_sup = Int[] # Matriz para almacenar los puntos superiores de las ranuras
+        for i in 1:2n-1            # Generar los puntos inferiores y superiores de las ranuras
             push!(points_ranuras_inf, gmsh.model.geo.add_point(x_ranuras[i], height,0.0, h))
             push!(points_ranuras_sup, gmsh.model.geo.add_point(x_ranuras[i], y_ranuras,0.0, h))
         end
-        println("points_ranuras_inf: ", points_ranuras_inf)
-        println("points_ranuras_sup: ", points_ranuras_sup)
+
         #Left symmetry
         p9 = gmsh.model.geo.add_point(-x7, y7,0.0, h)
         p10 = gmsh.model.geo.add_point(-x6, y6,0.0, h)
@@ -89,29 +88,28 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         l8 = gmsh.model.geo.add_line(p5,p6) #OUTLET
         l9 = gmsh.model.geo.add_line(p6,p7)
         l10 = gmsh.model.geo.add_line(p7,p8)
-        groove_points = Int[p8,p8_up]
+        groove_points = Int[p8,p8_up] # Matriz para almacenar el orden de los puntos de las ranuras
 
         i = 1
         while i + 1 <= length(points_ranuras_inf)
-        push!(groove_points, points_ranuras_sup[i])   # sube al tope de la ranura
-        push!(groove_points, points_ranuras_inf[i])   # llega a la pared (subida empieza aquí)
-        push!(groove_points, points_ranuras_inf[i+1]) # baja de vuelta a la pared    
-        push!(groove_points, points_ranuras_sup[i+1]) # tramo plano arriba
+        push!(groove_points, points_ranuras_sup[i])   # tramo plano arriba
+        push!(groove_points, points_ranuras_inf[i])   # baja a la pared
+        push!(groove_points, points_ranuras_inf[i+1]) # tramo plano abajo   
+        push!(groove_points, points_ranuras_sup[i+1]) # sube a la ranura
         i += 2
         end
         println("groove_points: ", groove_points)
-        # Si 2n-1 es impar (como con n=5 -> 9 puntos), sobra un índice: se agrega como
-        # tramo plano final antes de cerrar contra p9.
+        # Si 2n-1 es impar, sobra un índice
         if i <= length(points_ranuras_inf)
             push!(groove_points, points_ranuras_sup[i])
             push!(groove_points, points_ranuras_inf[i])
         end
-        println("groove_points: ", groove_points)
-        lines_ranuras = Int[]
-        for k in 1:length(groove_points)-1
+
+        lines_ranuras = Int[]              # Matriz para almacenar las líneas de las ranuras
+        for k in 1:length(groove_points)-1 # Generar las líneas de las ranuras
             push!(lines_ranuras, gmsh.model.geo.add_line(groove_points[k], groove_points[k+1]))
         end
-        println("lines_ranuras: ", lines_ranuras)
+
         l11 = gmsh.model.geo.add_line(groove_points[end], p9)
         l12 = gmsh.model.geo.add_line(p9,p10)
         l13 = gmsh.model.geo.add_line(p10,p11) #INLET
@@ -122,7 +120,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         #Create loop and surface
         loop = gmsh.model.geo.add_curve_loop(
             [l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,lines_ranuras...,l11,l12,l13,l14,l15,l16])
-        println("loop: ", loop)
+
         surf = gmsh.model.geo.add_plane_surface([loop])
 
         #Synchronize model
@@ -156,7 +154,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
             gmsh.write(path)
             togrid(path)
         end
-        #=
+        #= Eliminar Comment para imprimir ventana de GMSH
         if !("-nopopup" in ARGS)
             gmsh.fltk.run()
         end
