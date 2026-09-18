@@ -9,9 +9,7 @@ function setup_fevalues(ipu, ipp, ipg)
     qr = QuadratureRule{RefTriangle}(2)
     cvu = CellValues(qr, ipu, ipg)
     cvp = CellValues(qr, ipp, ipg; update_gradients = false, update_detJdV = false)
-    qr_facet = FacetQuadratureRule{RefTriangle}(2)
-    fvp = FacetValues(qr_facet, ipp, ipg; update_gradients = false)
-    return cvu, cvp, fvp
+    return cvu, cvp
 end
 
 function setup_dofs(grid, ipu, ipp)
@@ -43,7 +41,6 @@ function setup_constraints(dh, angle, height)
     U_max2 = 120.0 #μm/s
     c_in1 = boundary_center(dh.grid, "IN1")
     c_in2 = boundary_center(dh.grid, "IN2")
-
 
     function parabolic_velocity(x,t, U_max, height, θ, center)
         dx = x[1] - center[1]
