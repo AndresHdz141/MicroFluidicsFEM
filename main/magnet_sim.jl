@@ -14,7 +14,7 @@ using .magsetup
 
 function main(length, height, h = 0.05)
 
-    grid = magnet_setup_grid(length, height, h=0.05)
+    grid = magnet_setup_grid(length, height, h)
     println("Grid listo")
     #Interpolation
     ipu = Lagrange{RefTriangle, 2}()
@@ -26,19 +26,18 @@ function main(length, height, h = 0.05)
 
     #FE Values
     ipg = Lagrange{RefTriangle, 1}()
-    cvu= setup_fevalues(ipu, ipg)
+    cvu= magsetup_fevalues(ipu, ipg)
     println("FE Values listo")
 
     #Boundary conditions
     ch = magsetup_const(dh)
     println("Constraints listo")
 
-    coupling = [true true true; true true true; true true true]
-    K = allocate_matrix(dh, ch;coupling=coupling)
+    K = allocate_matrix(dh, ch)
     f = zeros(ndofs(dh))
     println("Coupling listo")
 
-    magssemble_system!(K,f,dh,cvu)
+    magssemble_system!(K,f,dh,cvu, grid)
     println("Assemble listo")
 
     apply!(K,f,ch)
@@ -52,4 +51,4 @@ function main(length, height, h = 0.05)
     return
 end
 
-main(30.0, 5.0)
+main(30.0, 5.0, 0.07)

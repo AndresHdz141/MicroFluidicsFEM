@@ -1,7 +1,7 @@
 module magsetup
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
-export magsetup_fevalues, magsetup_dofs, magsetup_constraints
+export magsetup_fevalues, magsetup_dofs, magsetup_const
 
 
 function magsetup_fevalues(ipu, ipg)
@@ -12,7 +12,7 @@ function magsetup_fevalues(ipu, ipg)
 end
 
 #degrees of fredom
-function magsetup_dofs(grid, ipu, ipp)
+function magsetup_dofs(grid, ipu)
     dh = DofHandler(grid)
     add!(dh, :u, ipu)
     close!(dh)

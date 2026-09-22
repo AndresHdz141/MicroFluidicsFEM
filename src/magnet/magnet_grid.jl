@@ -60,7 +60,7 @@ export magnet_setup_grid
         l3 = gmsh.model.geo.add_line(p3,p4)
         l4 = gmsh.model.geo.add_line(p4,p1) 
 
-     
+        println("Check 1 - Grid")
         #un for que crea las linas y las cuarda en vectores por grupos
         lineas_imanes = Vector{Vector{Int}}()
 
@@ -93,6 +93,7 @@ export magnet_setup_grid
                                                    lin[4]])      
             push!(lopps, loopp)
         end
+        println("Check 2 - Grid")
 
         #surfs
 
@@ -122,6 +123,7 @@ export magnet_setup_grid
 
         #Generate 2d Mesh
         gmsh.model.mesh.generate(2)
+        println("Check 3 - Grid")
 
         #Save mesh and read back in Ferrite Grid
 
@@ -130,11 +132,12 @@ export magnet_setup_grid
             gmsh.write(path)
             togrid(path)
         end
-            
+           
+        #=
         if !("-nopopup" in ARGS)
             gmsh.fltk.run()
         end
-        
+        =#
         Gmsh.finalize()
 
         return  grid

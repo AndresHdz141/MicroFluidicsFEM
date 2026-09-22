@@ -1,1 +1,1 @@
-using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
+magsetup_const

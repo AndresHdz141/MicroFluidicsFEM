@@ -5,12 +5,11 @@ export magssemble_system!
 
     #esto es lo chido hay que reafirmar que las ecuaciones son correctas
     #ahorita lo checamos
-    function magssemble_system!(k,f,dh,cvu)
+    function magssemble_system!(k,f,dh,cvu, magrid)
 
 
         μ₀ = (4*pi)*1e-7
         μᵣ = 1.05 #Permeabilidad relativa neodimio
-        magrid = get.grid(dh)
         magassembler = start_assemble(k,f)
         ke = zeros(ndofs_per_cell(dh),ndofs_per_cell(dh))
         fe = zeros(ndofs_per_cell(dh))
