@@ -9,7 +9,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         gmsh.option.set_number("General.Verbosity", 2)
 
         #Coordenadas de puntos
-        n = 6     # Cantidad de ranuras
+        n = 5     # Cantidad de ranuras
         s = L/4n  # 2s = grosor de la ranura
         #X
         x1 = a
