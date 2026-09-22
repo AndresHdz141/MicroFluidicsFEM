@@ -10,6 +10,10 @@ export magssemble_system!
 
         μ₀ = (4*pi)*1e-7
         μᵣ = 1.05 #Permeabilidad relativa neodimio
+
+        Bᵣ₁ =  Ferrite.Vec{2,Float64}((0, 1.2)) 
+        Bᵣ₂ = Ferrite.Vec{2,Float64}((0, 0))
+
         magassembler = start_assemble(k,f)
         ke = zeros(ndofs_per_cell(dh),ndofs_per_cell(dh))
         fe = zeros(ndofs_per_cell(dh))
@@ -17,22 +21,27 @@ export magssemble_system!
         range_u = dof_range(dh,:u)
         ndofs_u = length(range_u)
 
+        total_cells = getncells(magrid)
+        println("TOTAL CELLS> ", total_cells)
+        ∇ϕ = Vector{Ferrite.Vec{2,Float64}}(undef, ndofs_u)
 
-        ∇ϕ = Vector{Ferrite.Vec{3,Float64}}(undef, ndofs_u)
-
-        for cell in CellIterator(dh)
+        for (i,cell) in enumerate(CellIterator(dh))
             reinit!(cvu,cell)
             domaincell = getcells(magrid, "AIR")
+
+            if (i % 50000 == 0) || (i == total_cells)
+                println("Cell n> ", i)
+                println("Progreso de assembly: ", i/total_cells * 100, "%")
+            end
 
             if cell ∈ domaincell
 
                 μ = μ₀
-                Bᵣ =  Ferrite.Vec(2,Float64)(0, 1.2) # teslas dominio  
+                Bᵣ = Bᵣ₁  # teslas dominio  
                 
             else
                 μ = μᵣ*μ₀
-                Bᵣ = Ferrite.Vec(2,Float64)(0, 0) # teslas dominio  
-
+                Bᵣ = Bᵣ₂  # teslas dominio  
             end
 
             ke .= 0
@@ -43,17 +52,16 @@ export magssemble_system!
                 ∇ϕ[i] = shape_gradient(cvu, qp, i)
                 end
                 for (i,I) in pairs(range_u), (j,J) in pairs(range_u)
-                ke[I,J] += μ * ∇ϕ[i] ⋅ ∇ϕ[j] * dΩ
+                ke[I,J] += μ * (∇ϕ[i] ⋅ ∇ϕ[j]) * dΩ
                 end
                 for (i,I) in pairs(range_u)
-                fe[I] += (μ/μ₀) * ∇ϕ[i] * Bᵣ * dΩ
+                fe[I] += (μ/μ₀) * ∇ϕ[i] ⋅ Bᵣ * dΩ
                 end
 
             end
-            assemble!(magassembler, celldofs(cell, ke, fe))
-
+            assemble!(magassembler,celldofs(cell), ke, fe)
         end
-
+        return k, f
     end
 
 
