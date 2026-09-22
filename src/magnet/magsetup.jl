@@ -29,15 +29,6 @@ function magsetup_const(dh)
     AirLm_C = Dirichlet(:u, getfacetset(dh.grid, "AIR_Lm"), (x,t) -> 0.0)
     add!(ch, AirLm_C)
 
-        #aire en todo lo demas creoque  esto node
-
-    #=Air_C = Dirichlet(:u, getfacet(dh.grid, "Air"),(x,t) -> [])
-
-
-    #condición de magnetización dentro del iman en dirección de y
-    Magnet_c = Dirichlet(:u, getfaceset(dh.gdid, "magnets"), (x,t) -> [0,Mᵣ], [1,2]) # creo que Mᵣ
-    add!(ch, Magnet_c)=#
-
     close!(ch)
     return ch
 end
