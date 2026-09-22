@@ -112,9 +112,11 @@ export magnet_setup_grid
         #Paredes
         gmsh.model.add_physical_group(1,[l1,l2,l3,l4], -1, "AIR_Lm")       #Aire
         
-        #Imanes
+        #area de Aire
 
         gmsh.model.add_physical_group(2,[surf], -1, "AIR")
+
+        #Imanes
         gmsh.model.add_physical_group(2, surfs, -1, "magnets")
 
 
