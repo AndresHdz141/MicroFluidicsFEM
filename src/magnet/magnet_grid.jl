@@ -137,7 +137,7 @@ export magnet_setup_grid
         
         Gmsh.finalize()
 
-        return grid
+        return  grid
 
     end    
 
