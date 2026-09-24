@@ -45,7 +45,7 @@ function main(length, height, h = 0.05)
     apply!(u,ch)
     println("Solucion lista")
 
-    VTKGridFile("Scalar_field2", grid) do vtk
+    VTKGridFile("Scalar_field3", grid) do vtk
     write_solution(vtk, dh, u)
     end
     return

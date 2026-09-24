@@ -29,7 +29,7 @@ export magssemble_system!
             reinit!(cvu,cell)
             domaincell = getcells(magrid, "AIR")
 
-            if (i % 50000 == 0) || (i == total_cells)
+            if (i % (total_cells/10) == 0) || (i == total_cells)
                 println("Cell n> ", i)
                 println("Progreso de assembly: ", i/total_cells * 100, "%")
             end
@@ -37,12 +37,13 @@ export magssemble_system!
             if cell ∈ domaincell
 
                 μ = μ₀
-                Bᵣ = Bᵣ₁  # teslas dominio  
+                Bᵣ = Bᵣ₂  # teslas Aire  
                 
             else
                 μ = μᵣ*μ₀
-                Bᵣ = Bᵣ₂  # teslas dominio  
+                Bᵣ = Bᵣ₁  # teslas Iman  
             end
+            Mᵣ = Bᵣ / μ₀
 
             ke .= 0
             fe .= 0
@@ -55,7 +56,7 @@ export magssemble_system!
                 ke[I,J] += μ * (∇ϕ[i] ⋅ ∇ϕ[j]) * dΩ
                 end
                 for (i,I) in pairs(range_u)
-                fe[I] += (μ/μ₀) * ∇ϕ[i] ⋅ Bᵣ * dΩ
+                fe[I] += μ₀ * (∇ϕ[i] ⋅ Mᵣ) * dΩ
                 end
 
             end
