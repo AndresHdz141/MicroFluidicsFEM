@@ -24,30 +24,25 @@ export magssemble_system!
         total_cells = getncells(magrid)
         println("TOTAL CELLS> ", total_cells)
         ∇ϕ = Vector{Ferrite.Vec{2,Float64}}(undef, ndofs_u)
+        
+        magnets = getcellset(magrid, "magnets")
 
         for (i,cell) in enumerate(CellIterator(dh))
             reinit!(cvu,cell)
-            domaincell = getcells(magrid, "AIR")
 
             if (i % (total_cells/10) == 0) || (i == total_cells)
                 println("Cell n> ", i)
                 println("Progreso de assembly: ", i/total_cells * 100, "%")
             end
-
-            if cell ∈ domaincell
-
-                μ = μ₀
-                Bᵣ = Bᵣ₂  # teslas Aire  
-                
-            else
-                μ = μᵣ*μ₀
-                Bᵣ = Bᵣ₁  # teslas Iman  
-            end
-            Mᵣ = Bᵣ / μ₀
-
+            is_magnet = i in magnets
             ke .= 0
             fe .= 0
             for qp ∈ 1:getnquadpoints(cvu)
+
+            Bᵣ = is_magnet ? Bᵣ₁ : Bᵣ₂
+            μ = is_magnet ? μᵣ*μ₀ : μ₀ 
+            Mᵣ = Bᵣ / μ₀
+
                 dΩ = getdetJdV(cvu, qp)
                 for i in 1:ndofs_u
                 ∇ϕ[i] = shape_gradient(cvu, qp, i)
