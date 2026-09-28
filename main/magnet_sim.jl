@@ -6,10 +6,13 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
 include("../src/magnet/magnet_grid.jl")
 include("../src/magnet/magsetup.jl")
 include("../src/magnet/magssemble.jl")
+include("../src/magnet/postprocess.jl")
+
 
 using .grid_mag
 using .magssemble
 using .magsetup
+using .PostProcess
 
 
 function main(length, height, h = 0.05)
@@ -26,7 +29,7 @@ function main(length, height, h = 0.05)
 
     #FE Values
     ipg = Lagrange{RefTriangle, 1}()
-    cvu= magsetup_fevalues(ipu, ipg)
+    cvu, qr= magsetup_fevalues(ipu, ipg)
     println("FE Values listo")
 
     #Boundary conditions
@@ -45,8 +48,14 @@ function main(length, height, h = 0.05)
     apply!(u,ch)
     println("Solucion lista")
 
-    VTKGridFile("Scalar_field3", grid) do vtk
-    write_solution(vtk, dh, u)
+    H,proj = get_H_field(grid, dh, cvu,ipu, qr, u)
+    println("H field calculado")
+
+    
+
+    VTKGridFile("data/Scalar_field3", grid) do vtk
+    write_solution(vtk, dh, u, :Potential)
+    write_projection(vtk, proj, H, "H Field")   
     end
     return
 end

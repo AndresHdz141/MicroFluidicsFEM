@@ -7,8 +7,7 @@ export magsetup_fevalues, magsetup_dofs, magsetup_const
 function magsetup_fevalues(ipu, ipg)
     qr = QuadratureRule{RefTriangle}(2)
     cvu = CellValues(qr, ipu, ipg)
-    
-    return cvu
+    return cvu, qr
 end
 
 #degrees of fredom
