@@ -14,10 +14,10 @@ using .setup
 
 
 
-function main(length, height, angle_d,h=0.01)
+function main(length, height,n_ranuras, angle_d,h=0.05)
 
     #setup grid
-    grid = setup_grid(length, height, angle_d, h)
+    grid = setup_grid(length, height, angle_d,n_ranuras, h)
     println("Grid listo")
     #Interpolation
     ipu = Lagrange{RefTriangle, 2}()^2
@@ -50,10 +50,10 @@ function main(length, height, angle_d,h=0.01)
     apply!(u,ch)
     println("Solucion lista")
 
-    VTKGridFile("data/stokes-flow3", grid) do vtk
+    VTKGridFile("data/stokes-flow", grid) do vtk
         write_solution(vtk, dh, u)
     end
     return
 end
 
-main(24.0,4.0,45.0)
+main(24.0,4.0,5,45.0)

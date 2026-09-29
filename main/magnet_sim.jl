@@ -17,7 +17,7 @@ using .PostProcess
 
 function main(length, height,n, h = 0.05)
 
-    grid = magnet_setup_grid(length, height, h, n)
+    grid = magnet_setup_grid(length, height,n, h)
     println("Grid listo")
     #Interpolation
     ipu = Lagrange{RefTriangle, 2}()
@@ -63,4 +63,4 @@ function main(length, height,n, h = 0.05)
     return
 end
 
-main(24.0, 4.0,4, 0.4)
+main(24.0, 4.0,6, 0.1)

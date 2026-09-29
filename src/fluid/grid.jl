@@ -3,13 +3,13 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
  export setup_grid
 
-    function setup_grid(L, height, phi, h=0.5)
+    function setup_grid(L, height, phi,n_ranuras, h=0.5)
         a = L/2
         Gmsh.initialize()
         gmsh.option.set_number("General.Verbosity", 2)
 
         #Coordenadas de puntos
-        n = 6     # Cantidad de ranuras
+        n = n_ranuras     # Cantidad de ranuras
         s = L/4n  # 2s = grosor de la ranura
         #X
         x1 = a
