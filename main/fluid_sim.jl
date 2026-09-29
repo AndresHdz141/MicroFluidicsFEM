@@ -4,9 +4,9 @@ Pkg.instantiate()
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
 
 
-include("../src/grid.jl")
-include("../src/setup.jl")
-include("../src/assemble.jl")
+include("../src/fluid/grid.jl")
+include("../src/fluid/setup.jl")
+include("../src/fluid/assemble.jl")
 
 using .grid
 using .assemble
@@ -50,7 +50,7 @@ function main(length, height, angle_d,h=0.01)
     apply!(u,ch)
     println("Solucion lista")
 
-    VTKGridFile("stokes-flow3", grid) do vtk
+    VTKGridFile("data/stokes-flow3", grid) do vtk
         write_solution(vtk, dh, u)
     end
     return

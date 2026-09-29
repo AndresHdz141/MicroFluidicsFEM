@@ -60,7 +60,7 @@ function assemble_system!(K,f,dh,cvu,cvp, height)
         end
         assemble!(assembler, celldofs(cell), ke, fe)
     end
-    return K,fe
+    return K,f
 end
 
 
