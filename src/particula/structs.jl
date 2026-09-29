@@ -6,12 +6,10 @@ base.@kwdef multable struct Hemozoin
     mass::Float64 
     volumen::Float64
     dens::Float64
-    pos::SVector{3, Float64}
-    vel::SVector{3, Float64}
+    pos::SVector{2, Float64}
+    vel::SVector{2, Float64}
     ΔXᵣ::Float64                    #susceptibilidad
-
-
-
+    
 end
 
 base.@kwdef multable struct Env
