@@ -5,10 +5,9 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
 export magnet_setup_grid
 
-    function magnet_setup_grid(L, height, h=0.05)
+    function magnet_setup_grid(L, height,n_imanes, h=0.05)
 
         a = L/2
-        n_imanes =  9
         paso = L / n_imanes
         lado = 0.6 * paso
 

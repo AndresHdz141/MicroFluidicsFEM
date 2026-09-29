@@ -1,8 +1,10 @@
 module solvers
+using ..Physics
+
+export RK4!
 
 
-
-function RK4!() 
+function RK4!(Hemozoin::Any, Env::Any, dt::Float64) 
     pos0 = obj.pos
     vel0 = obj.vel
     #k1
