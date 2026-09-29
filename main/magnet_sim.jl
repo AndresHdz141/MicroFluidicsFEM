@@ -15,9 +15,9 @@ using .magsetup
 using .PostProcess
 
 
-function main(length, height, h = 0.05)
+function main(length, height,n, h = 0.05)
 
-    grid = magnet_setup_grid(length, height, h)
+    grid = magnet_setup_grid(length, height, h, n)
     println("Grid listo")
     #Interpolation
     ipu = Lagrange{RefTriangle, 2}()
@@ -48,16 +48,19 @@ function main(length, height, h = 0.05)
     apply!(u,ch)
     println("Solucion lista")
 
-    H,proj = get_H_field(grid, dh, cvu,ipu, qr, u)
+    H,H_mag, proj = get_H_field(grid, dh, cvu,ipu, qr, u)
     println("H field calculado")
 
-    
+    ∇H², proj2 = get_grad_magH(grid,cvu, ipu,qr,H_mag)
+    println("∇H² calculado")
 
-    VTKGridFile("data/Scalar_field3", grid) do vtk
+    VTKGridFile("data/Scalar_field2", grid) do vtk
     write_solution(vtk, dh, u, :Potential)
-    write_projection(vtk, proj, H, "H Field")   
+    write_projection(vtk, proj, H, "H_Field")   
+    write_projection(vtk, proj, H_mag, "Mag_H^2")
+    write_projection(vtk, proj2,∇H², "grad_H2" )
     end
     return
 end
 
-main(24.0, 4.0, 0.4)
+main(24.0, 4.0,4, 0.4)
