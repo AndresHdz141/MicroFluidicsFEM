@@ -4,7 +4,7 @@ using ..Physics
 export RK4!
 
 
-function RK4!(Hemozoin::Any, Env::Any, dt::Float64) 
+function RK4!(obj::Any, env::Any, dt::Float64) 
     pos0 = obj.pos
     vel0 = obj.vel
     #k1
@@ -24,6 +24,5 @@ function RK4!(Hemozoin::Any, Env::Any, dt::Float64)
     obj.pos = obj.pos + dt/6 * (k1x + 2*k2x + 2k3x + k4x)
     obj.acc = aceleracion(obj,env, obj.pos, obj.vel)
 end
-
 
 end
