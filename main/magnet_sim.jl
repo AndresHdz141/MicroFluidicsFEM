@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate(".")
 Pkg.instantiate()
-using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie, JLD2
 
 include("../src/magnet/magnet_grid.jl")
 include("../src/magnet/magsetup.jl")
@@ -59,8 +59,16 @@ function main(length, height,n, h = 0.05)
     write_projection(vtk, proj, H, "H_Field")   
     write_projection(vtk, proj, H_mag, "Mag_H^2")
     write_projection(vtk, proj2,∇H², "grad_H2" )
+
+    jldsave("data/magnetic_data.jld2";
+        mag_name = "Magnetic Data",
+        mag_mesh = grid, 
+        mag_projector = proj2,
+        mag_H2_field = ∇H²
+    )
+
     end
     return
 end
 
-main(24.0, 4.0,6, 0.1)
+main(24.0, 4.0,6, 0.1) #μm - μm - n_imanes - h_size

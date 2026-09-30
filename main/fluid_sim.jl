@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate(".")
 Pkg.instantiate()
-using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, GLMakie
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2
 
 
 include("../src/fluid/grid.jl")
@@ -52,6 +52,13 @@ function main(length, height,n_ranuras, angle_d,h=0.05)
 
     VTKGridFile("data/stokes-flow", grid) do vtk
         write_solution(vtk, dh, u)
+
+    jldsave("data/fluid_data.jld2";
+        f_name = "Fluid data",
+        f_mesh = grid, 
+        f_dh = dh,
+        f_u = u
+    )
     end
     return
 end

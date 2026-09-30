@@ -10,6 +10,7 @@ function aceleracion(obj::Hemozoin, env::Env,)
 return F_total / obj.mass
 end
 function magforce()
+grad_H2 = getHvalue(obj.pos)
 
 end
 function dragforce(obj::Hemozoin, env::Env, )
