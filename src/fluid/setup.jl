@@ -37,8 +37,8 @@ function setup_constraints(dh, angle, height)
     ch = ConstraintHandler(dh)
     #Inlet Constraints
     θ = deg2rad(angle)
-    U_max1 = 75.0 #μm/s
-    U_max2 = 120.0 #μm/s
+    U_max1 = 7.5 #u/s
+    U_max2 = 12.0 #u/s
     c_in1 = boundary_center(dh.grid, "IN1")
     c_in2 = boundary_center(dh.grid, "IN2")
 

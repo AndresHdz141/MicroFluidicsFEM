@@ -31,7 +31,7 @@ function assemble_system!(K,f,dh,cvu,cvp, height)
         if y_center >=height/2
             μ = 0.005
         else
-            μ = 0.007
+            μ = 0.006
         end
         ke .= 0
         fe .= 0

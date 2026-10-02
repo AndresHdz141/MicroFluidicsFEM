@@ -22,13 +22,13 @@ close(file)
 
 
 #Funcion para obtener el valor del campo en un punto en especifico
-function get_field_value(data,point)
+function get_field_value(data,point, isFluid)
     #Toma un vector SVector y lo convierte a Ferrite.Vec
     fvec = Vec{2}(Tuple(point)) 
     #Calcula el PointHandler para el punto en especifico
     ph = PointEvalHandler(data[1], [fvec])
     #Obtiene el valor del vector dependiendo del tipo de campo a evaluar (fluido o magnetico)
-    value = typeof(data[3]) == Vector{Float64} ? evaluate_at_points(ph, data[2], data[3], :u ) :  evaluate_at_points(ph, data[2], data[3])
+    value = isFluid ? evaluate_at_points(ph, data[2], data[3], :u ) :  evaluate_at_points(ph, data[2], data[3])
     #Convierte el valor obtenido el cual es Ferrite.Vec a un SVector
     svec = SVector{2}(value[1])
     return svec

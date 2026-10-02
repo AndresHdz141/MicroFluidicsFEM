@@ -7,11 +7,11 @@ include("../src/particula/fields_eval.jl")
 include("../src/particula/Physics.jl")
 include("../src/particula/solvers.jl")
 
+using .structdata
 using .evaluate_fields
 using .Physics
 using .solvers
-using .structdata
-using Ferrite,FerriteViz, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
 
 
 function main()
@@ -36,39 +36,37 @@ function main()
     close(file)
 
     #Vector de campos de velocidades y magneticos
-    f_data = [f_grid, f_dh, f_field]
-    mag_data = [mag_grid, mag_dh, mag_field]
+    f_data = (f_grid, f_dh, f_field)
+    mag_data = (mag_grid, mag_dh, mag_field)
     #generar environment
 
-    env = Env()
+    env = environment()
 
     #N de particulas y max_steps
     n_particles = 1
-    max_steps = 10
+    max_steps = 100
     dt = 0.01
     #Generar almacenamiento para info de las particulas
     all_particle_data = Vector{ParticleHandler}(undef, n_particles)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
 
     #caso = Evento() - Falta crear un struct
-
     #loop para cada n particula
     for i ∈ 1:n_particles
-
         #Generar particula del tipo struct ::Hemozoin
         hz = Hemozoin(
-            mass = 5.0,
-            volumen = 3.0,
-            diam = 0.8, #μm x10⁻¹
-            dens = 0.4,
-            pos = SVector{2,Float64}(0.0,0.0),
-            vel = SVector{2,Float64}(0.0,0.0),
-            acc = SVector{2, Float64}(0.0, 0.0),
-            ΔXᵣ = 0.0004
+            mass = 3.3* 1e-14, #kg
+            volumen = 8^3 * 1e-3,  #cm^3 -> 10^9 u^3 | m^3 -> 10^15 u^3
+            diam = 8 * 1e-7,       #μm -> 10^-1 u (e-6-1)
+            dens = 1.15* 1e-12,     #g/m^3 -> 10^-12 kg/u^3
+            pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
+            vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
+            acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
+            ΔXᵣ = 1.8    #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
-        hz.vel = get_field_value(f_data, hz.pos)
+        hz.vel = get_field_value(f_data, hz.pos, true)
         println("Pos0:", hz.pos)
         println("Vel0:", hz.vel)
 
@@ -91,13 +89,14 @@ function main()
             #aumentar timpo t por un dt, RK4! y aumentar un step 
             time += dt
             RK4!(hz, env, f_data, mag_data, dt)
+            println("RK4[", step,"]" )
             #Revisar si hay colision o si llega al final del circuito
             #Guardar historia con valores nuevos
             step +=1
             pos_hist[step] = hz.pos
             vel_hist[step] = hz.vel
             acc_hist[step] = hz.acc
-            println("POS:", hz.pos)
+            #println("POS:", hz.pos)
 
         end
         #Ajustar tamaño de vectores de historia (elimina ceros no utilizados)
@@ -105,20 +104,20 @@ function main()
         resize!(vel_hist, step)
         resize!(acc_hist, step)
         #agregar datos a la historia de todas las particuals en i
-        all_particle_data[i] = ParticleHandler(hz.ΔXᵣ, pos_hist, vel_hist, acc_hist)
+        all_particle_data[i] = structdata.ParticleHandler(hz.ΔXᵣ, pos_hist, vel_hist, acc_hist)
         println(all_particle_data[i])
     end
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     println("SIMULACION FINALIZADA")
     #Ejecutar codigo
-    PlotTray(all_particle_data, f_data[1])
+    PlotTray(all_particle_data)
     readline()
     #Guardar valores de las n particulas
 
     return 
 end
 
-function PlotTray(data, grid)
+function PlotTray(data)
     fig = Figure(size = (1920, 1080))
     ax = Axis(
             fig[1, 1],
@@ -129,7 +128,6 @@ function PlotTray(data, grid)
     for part in data
         lines!(ax, part.pos,color = :red, alpha = 0.5)
     end
-    FerriteViz.wireframe
     display(fig)
 end
 

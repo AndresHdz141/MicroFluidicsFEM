@@ -15,12 +15,12 @@ Base.@kwdef mutable struct Hemozoin
     
 end
 
-Base.@kwdef mutable struct Env
+Base.@kwdef mutable struct environment
 
-    μ₀::Float64 = 4π * 1e-7  
-    η::Float64 = 1.20     #mPa    tal vez  lo cambie pero ne
-    dens::Float64 = 1     #Densidad agua/plasma
-    g::SVector{2, Float64} = (0.0,0.0)
+    μ₀::Float64 = (4π * 1e-7) * 1e-5 #H/m -> H/u
+    η::Float64 = (3.5*1e-3) * 1e-5         #kg/ms -> kg/us
+    dens::Float64 = 1056 * 1e-15   #kg/m^2 -> kg/u³ - Densidad agua/plasma
+    g::SVector{2, Float64} = (0.0,0.0) .* 1e5 #m/s^2 -> u/s^2
 end
 
 struct ParticleHandler

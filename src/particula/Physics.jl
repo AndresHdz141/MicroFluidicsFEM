@@ -4,7 +4,7 @@ module Physics
     using StaticArrays,LinearAlgebra
 
     export aceleracion
-    function aceleracion(obj::Hemozoin, env::Env, c_pos, c_vel, f_data, mag_data)
+    function aceleracion(obj::Hemozoin, env::environment, c_pos, c_vel, f_data, mag_data)
         F_m = magforce(obj, env, mag_data, c_pos)
 
         F_d = dragforce(obj, env, f_data,c_pos, c_vel )
@@ -12,18 +12,18 @@ module Physics
         F_total = F_m + F_d
     return F_total / obj.mass
     end
-    function magforce(obj::Hemozoin, env::Env, mag_data, c_pos)
+    function magforce(obj::Hemozoin, env::environment, mag_data, c_pos)
         μ₀ = env.μ₀
         Volumen_p = obj.volumen
         ΔXᵣ = obj.ΔXᵣ
-        ∇H² = get_field_value(mag_data, c_pos)
+        ∇H² = get_field_value(mag_data, c_pos, false) * 1e-15
         return (1/2) * μ₀ * Volumen_p * ΔXᵣ * ∇H²
     end
-    function dragforce(obj::Hemozoin, env::Env, f_data, c_pos, c_vel)
-        relative_velocity = get_field_value(f_data, c_pos) - c_vel
+    function dragforce(obj::Hemozoin, env::environment, f_data, c_pos, c_vel)
+        relative_velocity = get_field_value(f_data, c_pos, true) - c_vel
         return 3*π*env.η*obj.diam*relative_velocity 
     end
-    function gbforce(obj::Hemozoin, env::Env)
+    function gbforce(obj::Hemozoin, env::environment)
         density_diff = obj.dens - env.dens
         Volumen_p = obj.volumen
         g = env.g
