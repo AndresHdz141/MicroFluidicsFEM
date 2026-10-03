@@ -1,1 +1,0 @@
-magsetup_const

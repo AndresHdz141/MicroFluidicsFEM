@@ -7,25 +7,25 @@ export RK4!, pos_inicial
 
 
 
-function RK4!(obj::Any, Env::Any,f_data, mag_data, dt::Float64) 
+function RK4!(obj::Any, Env::Any,f_data, fluid_eval, mag_data, mag_eval, dt::Float64) 
     pos0 = obj.pos
     vel0 = obj.vel
     #k1
     k1x = copy(obj.vel)
-    k1v = aceleracion(obj, Env, pos0, vel0, f_data, mag_data)
+    k1v = aceleracion(obj, Env, pos0, vel0, f_data, fluid_eval, mag_data, mag_eval)
     #k2
     k2x = obj.vel + 1/2 * k1v * dt
-    k2v = aceleracion(obj, Env, pos0 + dt/2 * k1x, vel0 + dt/2 * k1v, f_data, mag_data)
+    k2v = aceleracion(obj, Env, pos0 + dt/2 * k1x, vel0 + dt/2 * k1v, f_data, fluid_eval, mag_data, mag_eval)
     #k3
     k3x = obj.vel + 1/2 * k2v * dt
-    k3v = aceleracion(obj, Env, pos0 + dt/2 * k2x, vel0 + dt/2 * k2v, f_data, mag_data)
+    k3v = aceleracion(obj, Env, pos0 + dt/2 * k2x, vel0 + dt/2 * k2v, f_data, fluid_eval, mag_data, mag_eval)
     #k4
     k4x = obj.vel + k3v * dt
-    k4v = aceleracion(obj, Env, pos0 + k3x * dt, vel0 + k3v * dt, f_data, mag_data)
+    k4v = aceleracion(obj, Env, pos0 + k3x * dt, vel0 + k3v * dt,  f_data, fluid_eval, mag_data, mag_eval)
     #Update
     obj.vel = obj.vel + dt/6 * (k1v + 2*k2v + 2k3v + k4v)
     obj.pos = obj.pos + dt/6 * (k1x + 2*k2x + 2k3x + k4x)
-    obj.acc = aceleracion(obj, Env, obj.pos, obj.vel, f_data, mag_data)
+    obj.acc = aceleracion(obj, Env, obj.pos, obj.vel,  f_data, fluid_eval, mag_data, mag_eval)
 end
 
 function get_grid_points(grid::Ferrite.AbstractGrid, setname::String)

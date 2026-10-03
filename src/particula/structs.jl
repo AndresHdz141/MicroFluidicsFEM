@@ -1,21 +1,21 @@
 module structdata
-export Hemozoin, Env, ParticleHandler
+export Hemozoin, EnvironmentData, ParticleHandler
 using StaticArrays
 Base.@kwdef mutable struct Hemozoin
 
 
-    mass::Float64 
-    volumen::Float64
-    diam::Float64
-    dens::Float64
-    pos::SVector{2, Float64}
-    vel::SVector{2, Float64}
-    acc::SVector{2, Float64}
+    mass::Float64                   #masa
+    volumen::Float64                #Volumen
+    diam::Float64                   #diametro
+    dens::Float64                   #Densidad
+    pos::SVector{2, Float64}        #posicion  
+    vel::SVector{2, Float64}        #velocidad
+    acc::SVector{2, Float64}        #aceleracion
     ΔXᵣ::Float64                    #susceptibilidad
     
 end
 
-Base.@kwdef mutable struct environment
+Base.@kwdef mutable struct EnvironmentData
 
     μ₀::Float64 = (4π * 1e-7) * 1e-5 #H/m -> H/u
     η::Float64 = (3.5*1e-3) * 1e-5         #kg/ms -> kg/us

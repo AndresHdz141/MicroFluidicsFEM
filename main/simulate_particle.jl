@@ -1,4 +1,6 @@
 using Pkg
+using Revise
+
 Pkg.activate(".")
 Pkg.instantiate()
 
@@ -35,19 +37,23 @@ function main()
     mag_field = file["mag_H2_field"] 
     close(file)
 
+    println("READ FIELD DATA")
     #Vector de campos de velocidades y magneticos
     f_data = (f_grid, f_dh, f_field)
-    mag_data = (mag_grid, mag_dh, mag_field)
-    #generar environment
-
-    env = environment()
-
+    mag_data = (mag_grid, mag_dh.dh, mag_field)
+    #Obtener arbles del campo de fluidos y magnetico
+    fluid_eval = setup_fast_eval(f_data[1], f_data[2], :u)
+    mag_eval = setup_fast_eval(mag_data[1], mag_data[2], :_)
+    println("GENERATED DATA TREES")
+    #generar Environment
+    env = structdata.EnvironmentData()
+    println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 1
-    max_steps = 100
+    n_particles = 1000
+    max_steps = 900
     dt = 0.01
     #Generar almacenamiento para info de las particulas
-    all_particle_data = Vector{ParticleHandler}(undef, n_particles)
+    all_particle_data = Vector{structdata.ParticleHandler}(undef, n_particles)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
 
     #caso = Evento() - Falta crear un struct
@@ -66,7 +72,7 @@ function main()
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
-        hz.vel = get_field_value(f_data, hz.pos, true)
+        hz.vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
         println("Pos0:", hz.pos)
         println("Vel0:", hz.vel)
 
@@ -88,8 +94,7 @@ function main()
             pos_ant = hz.pos
             #aumentar timpo t por un dt, RK4! y aumentar un step 
             time += dt
-            RK4!(hz, env, f_data, mag_data, dt)
-            println("RK4[", step,"]" )
+            RK4!(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
             #Revisar si hay colision o si llega al final del circuito
             #Guardar historia con valores nuevos
             step +=1
@@ -105,7 +110,6 @@ function main()
         resize!(acc_hist, step)
         #agregar datos a la historia de todas las particuals en i
         all_particle_data[i] = structdata.ParticleHandler(hz.ΔXᵣ, pos_hist, vel_hist, acc_hist)
-        println(all_particle_data[i])
     end
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     println("SIMULACION FINALIZADA")
@@ -174,6 +178,9 @@ function test()
     #Vector de campos de velocidades y magneticos
     f_data = [f_grid, f_dh, f_field]
     mag_data = [mag_grid, mag_dh, mag_field]
+
+    #Load PointEvalHandlers for magnetic and for fluid_data
+    
 
     points = get_grid_points(f_data[1], "IN1")
     ps = [pos_inicial(points, 0.7) for i in 1:200]
