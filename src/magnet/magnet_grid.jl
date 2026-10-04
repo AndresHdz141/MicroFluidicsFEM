@@ -5,7 +5,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
 export magnet_setup_grid
 
-    function magnet_setup_grid(L, height,n_imanes, h=0.05)
+    function magnet_setup_grid(L, height,n_imanes, array, h=0.05)
 
         a = L/2 
         paso = L / n_imanes
@@ -98,15 +98,35 @@ export magnet_setup_grid
 
         surf = gmsh.model.geo.add_plane_surface([loop,lopps...])
 
-        surfs_imp = Int[]   #los surfs de los imanes
-        surfs_par = Int[]
-        for i in 1:n_imanes
+
+        if array == 1     
+            surfs_imp = Int[]   #los surfs de los imanes
+            surfs_par = Int[]
+
+            for i in 1:n_imanes
             srf = gmsh.model.geo.add_plane_surface([lopps[i]])
             if i%2 == 0
             push!(surfs_par, srf)
             else
             push!(surfs_imp, srf)
             end
+        end
+
+        else
+            surfs_1 = Int[]
+            surfs_2 = Int[]
+            surfs_3 = Int[]
+            surfs_4 = Int[]
+
+            for num in 1:n_imanes
+
+                srf = gmsh.model.geo.add_plane_surface([lopps[num]])
+                num%4 == 0 && (push!(surfs_4, srf); continue)
+                num%3 == 0 &&  (push!(surfs_3, srf); continue)
+                num%2 == 0 &&  (push!(surfs_2, srf); continue)
+                push!(surfs_1, srf)
+
+            end     
         end
 
         #Synchronize model
@@ -122,9 +142,21 @@ export magnet_setup_grid
         gmsh.model.add_physical_group(2,[surf], -1, "AIR")
 
         #Imanes
-        gmsh.model.add_physical_group(2, surfs_imp, -1, "magnets_impar")
-        gmsh.model.add_physical_group(2, surfs_par, -1, "magnets_par")
 
+        if array == 1
+
+            gmsh.model.add_physical_group(2, surfs_imp, -1, "magnets_impar")
+            gmsh.model.add_physical_group(2, surfs_par, -1, "magnets_par")
+
+        else
+            gmsh.model.add_physical_group(2, surfs_1, -1, "magnets_1")
+            gmsh.model.add_physical_group(2, surfs_2, -1, "magnets_2")
+            gmsh.model.add_physical_group(2, surfs_3, -1, "magnets_3")
+            gmsh.model.add_physical_group(2, surfs_4, -1, "magnets_4")
+        end
+
+
+            
 
 
         #Generate 2d Mesh
