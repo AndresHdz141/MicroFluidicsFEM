@@ -15,6 +15,12 @@ Base.@kwdef mutable struct Hemozoin
     
 end
 
+Base.@kwdef mutable struct cases
+
+    
+
+end
+
 Base.@kwdef mutable struct EnvironmentData
 
     μ₀::Float64 = (4π * 1e-7) * 1e-5 #H/m -> H/u
