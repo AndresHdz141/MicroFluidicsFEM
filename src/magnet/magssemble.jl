@@ -11,7 +11,7 @@ export magssemble_system!
         μ₀ = (4*pi)*1e-7
         μᵣ = 1.05 #Permeabilidad relativa neodimio
 
-        Bᵣ₁ =  Ferrite.Vec{2,Float64}((0, 1.2)) 
+        Bᵣ₁ =  Ferrite.Vec{2,Float64}((0,1.2)) 
         Bᵣ₂ = Ferrite.Vec{2,Float64}((0, 0))
 
         magassembler = start_assemble(k,f)

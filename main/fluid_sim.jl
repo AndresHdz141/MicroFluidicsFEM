@@ -63,4 +63,4 @@ function main(length, height,n_ranuras, angle_d,h=0.05)
     return
 end
 
-main(24.0,4.0,5,45.0)
+main(24.0,4.0,4,45.0)

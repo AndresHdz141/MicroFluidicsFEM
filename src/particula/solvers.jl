@@ -3,7 +3,7 @@ module solvers
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, Random
 using ..Physics
 
-export RK4!, pos_inicial
+export RK4!, pos_inicial, RK4!_vel
 
 
 
@@ -26,6 +26,22 @@ function RK4!(obj::Any, Env::Any,f_data, fluid_eval, mag_data, mag_eval, dt::Flo
     obj.vel = obj.vel + dt/6 * (k1v + 2*k2v + 2k3v + k4v)
     obj.pos = obj.pos + dt/6 * (k1x + 2*k2x + 2k3x + k4x)
     obj.acc = aceleracion(obj, Env, obj.pos, obj.vel,  f_data, fluid_eval, mag_data, mag_eval)
+end
+
+function RK4!_vel(obj::Any, Env::Any,f_data, fluid_eval, mag_data, mag_eval, dt::Float64)
+    pos0 = obj.pos
+    #k1
+    k1x = get_velocity(obj, Env, pos0, f_data, fluid_eval, mag_data, mag_eval)
+    #k2
+    k2x = get_velocity(obj, Env, pos0 + dt/2 * k1x, f_data, fluid_eval, mag_data, mag_eval)
+    #k3
+    k3x = get_velocity(obj, Env, pos0 + dt/2 * k2x, f_data, fluid_eval, mag_data, mag_eval)
+    #k4
+    k4x = get_velocity(obj, Env, pos0 + k3x * dt,  f_data, fluid_eval, mag_data, mag_eval)
+    #Update
+    obj.vel = get_velocity(obj, Env, obj.pos, f_data, fluid_eval, mag_data, mag_eval)
+    obj.pos = obj.pos + dt/6 * (k1x + 2*k2x + 2k3x + k4x)
+    obj.acc = SVector{2, Float64}(0.0,0.0)
 end
 
 function get_grid_points(grid::Ferrite.AbstractGrid, setname::String)

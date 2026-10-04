@@ -54,7 +54,7 @@ function main(length, height,n, h = 0.05)
     ∇H², proj2 = get_grad_magH(grid,cvu, ipu,qr,H_mag)
     println("∇H² calculado")
 
-    VTKGridFile("data/Scalar_field2", grid) do vtk
+    VTKGridFile("data/Scalar_field1", grid) do vtk
     write_solution(vtk, dh, u, :Potential)
     write_projection(vtk, proj, H, "H_Field")   
     write_projection(vtk, proj, H_mag, "Mag_H^2")
@@ -71,4 +71,4 @@ function main(length, height,n, h = 0.05)
     return
 end
 
-main(24.0, 4.0,6, 0.1) #μm - μm - n_imanes - h_size
+main(24.0, 4.0,7, 0.1) #μm - μm - n_imanes - h_size

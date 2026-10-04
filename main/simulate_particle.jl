@@ -49,10 +49,13 @@ function main()
     env = structdata.EnvironmentData()
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 1000
-    max_steps = 900
+    n_particles = 10
     dt = 0.01
-    #Generar almacenamiento para info de las particulas
+
+    sim_seconds = 5
+    max_steps = round(Int, sim_seconds / dt) 
+    save_interval = 1
+    hist_size = cld(max_steps, save_interval)
     all_particle_data = Vector{structdata.ParticleHandler}(undef, n_particles)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
 
@@ -62,8 +65,8 @@ function main()
         #Generar particula del tipo struct ::Hemozoin
         hz = Hemozoin(
             mass = 3.3* 1e-14, #kg
-            volumen = 8^3 * 1e-3,  #cm^3 -> 10^9 u^3 | m^3 -> 10^15 u^3
-            diam = 8 * 1e-7,       #μm -> 10^-1 u (e-6-1)
+            volumen = (4/3)*pi*(4)^3 * 1e-3,  #μm^3 -> u^-3
+            diam = 8 * 1e-1,       #μm -> 10^-1 u (e-6-1)
             dens = 1.15* 1e-12,     #g/m^3 -> 10^-12 kg/u^3
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
@@ -77,9 +80,9 @@ function main()
         println("Vel0:", hz.vel)
 
         #Generar almacenamiento de historia de particula, pos, vel, acc, etc (lo necesario unicamente)
-        pos_hist = Vector{SVector{2, Float64}}(undef, max_steps) 
-        vel_hist = Vector{SVector{2, Float64}}(undef, max_steps)
-        acc_hist = Vector{SVector{2, Float64}}(undef, max_steps)
+        pos_hist = Vector{SVector{2, Float64}}(undef, hist_size) 
+        vel_hist = Vector{SVector{2, Float64}}(undef, hist_size)
+        acc_hist = Vector{SVector{2, Float64}}(undef, hist_size)
         #Asignar valores iniciales a la particula, pos inicial, vel inicial (depende de pos inicial)
         #y guardar en el espacio [1] del almacenamiento
         pos_hist[1] = hz.pos
@@ -94,13 +97,15 @@ function main()
             pos_ant = hz.pos
             #aumentar timpo t por un dt, RK4! y aumentar un step 
             time += dt
-            RK4!(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
+            RK4!_vel(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
             #Revisar si hay colision o si llega al final del circuito
             #Guardar historia con valores nuevos
             step +=1
+            if step % save_interval ==0
             pos_hist[step] = hz.pos
             vel_hist[step] = hz.vel
             acc_hist[step] = hz.acc
+            end
             #println("POS:", hz.pos)
 
         end
@@ -137,58 +142,3 @@ end
 
 main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function test()
-
-    file = jldopen("data/fluid_data.jld2", "r")
-    f_name =  file["f_name"]
-    f_grid = file["f_mesh"]
-    f_dh = file["f_dh"]
-    f_field = file["f_u"] 
-    close(file)
-
-    file = jldopen("data/magnetic_data.jld2", "r")
-    mag_name =  file["mag_name"]
-    mag_grid = file["mag_mesh"]
-    mag_dh = file["mag_projector"]
-    mag_field = file["mag_H2_field"] 
-    close(file)
-
-    #Vector de campos de velocidades y magneticos
-    f_data = [f_grid, f_dh, f_field]
-    mag_data = [mag_grid, mag_dh, mag_field]
-
-    #Load PointEvalHandlers for magnetic and for fluid_data
-    
-
-    points = get_grid_points(f_data[1], "IN1")
-    ps = [pos_inicial(points, 0.7) for i in 1:200]
-    all_points = vcat([points[1], points[2]], ps)
-
-    xs = getindex.(all_points, 1)
-    ys = getindex.(all_points, 2)
-    p = scatter(xs, ys; aspect_ratio = :equal, legend = false)
-    display(p)
-    readline()
-end

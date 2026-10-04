@@ -29,9 +29,9 @@ function assemble_system!(K,f,dh,cvu,cvp, height)
         y_center = sum(y_coords) / length(y_coords)
 
         if y_center >=height/2
-            μ = 0.005
+            μ = 1.0
         else
-            μ = 0.006
+            μ = 1.0
         end
         ke .= 0
         fe .= 0

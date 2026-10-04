@@ -23,7 +23,7 @@ export magnet_setup_grid
         #coordenadas para los imanes
 
         x_init = -a  + (paso-lado)/2
-        y_init = -height/2 -lado
+        y_init = -height/8 -lado
 
         #crea los puntos de los imanes partiendo de unas cordenadas iniciales
         imanes= Vector{Vector{Int}}()
