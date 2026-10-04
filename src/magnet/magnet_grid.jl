@@ -7,7 +7,7 @@ export magnet_setup_grid
 
     function magnet_setup_grid(L, height,n_imanes, h=0.05)
 
-        a = L/2
+        a = L/2 
         paso = L / n_imanes
         lado = 0.6 * paso
 
@@ -16,7 +16,7 @@ export magnet_setup_grid
 
         #Coordenadas de puntos para el aire
         #X
-        x1 = 2*a
+        x1 = 2.2*a
         #Y 
         y1 = a*(3/2)
 

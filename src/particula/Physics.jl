@@ -18,9 +18,9 @@ module Physics
         F_m = magforce(obj, env, mag_data, mag_eval, c_pos)
         τ = 3*pi*env.η*obj.diam
         F_m_effective = F_m ./τ
-        println("MAGNETIC DRIVING FORCE>", F_m_effective)
+        #println("MAGNETIC DRIVING FORCE>", F_m_effective)
         fluid_velocity = fast_evaluate_field(c_pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
-        println("FLUID VEL>" ,fluid_velocity)
+        #println("FLUID VEL>" ,fluid_velocity)
 
         v_particle = fluid_velocity+F_m_effective
         return v_particle

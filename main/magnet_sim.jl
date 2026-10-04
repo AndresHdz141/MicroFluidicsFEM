@@ -71,4 +71,4 @@ function main(length, height,n, h = 0.05)
     return
 end
 
-main(24.0, 4.0,7, 0.1) #μm - μm - n_imanes - h_size
+main(24.0, 4.0,1, 0.1) #μm - μm - n_imanes - h_size

@@ -49,7 +49,7 @@ function main()
     env = structdata.EnvironmentData()
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 10
+    n_particles = 100
     dt = 0.01
 
     sim_seconds = 5
