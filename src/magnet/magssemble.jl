@@ -25,7 +25,9 @@ export magssemble_system!
         println("TOTAL CELLS> ", total_cells)
         ∇ϕ = Vector{Ferrite.Vec{2,Float64}}(undef, ndofs_u)
         
-        magnets = getcellset(magrid, "magnets")
+        magnets_imp = getcellset(magrid, "magnets_impar")
+        magnets_par = getcellset(magrid, "magnets_par")
+
 
         for (i,cell) in enumerate(CellIterator(dh))
             reinit!(cvu,cell)
@@ -34,13 +36,18 @@ export magssemble_system!
                 println("Cell n> ", i)
                 println("Progreso de assembly: ", i/total_cells * 100, "%")
             end
-            is_magnet = i in magnets
+            
             ke .= 0
             fe .= 0
             for qp ∈ 1:getnquadpoints(cvu)
+                if i in magnets_imp || i in magnets_par
+                    μ = μᵣ*μ₀
+                    Bᵣ = i in magnets_par ? Bᵣ₁ : -Bᵣ₁
+                else
+                    μ= μ₀
+                    Bᵣ= Bᵣ₂
+                end #:)
 
-            Bᵣ = is_magnet ? Bᵣ₁ : Bᵣ₂
-            μ = is_magnet ? μᵣ*μ₀ : μ₀ 
             Mᵣ = Bᵣ / μ₀
 
                 dΩ = getdetJdV(cvu, qp)

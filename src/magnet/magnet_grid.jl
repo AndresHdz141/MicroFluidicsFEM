@@ -98,10 +98,15 @@ export magnet_setup_grid
 
         surf = gmsh.model.geo.add_plane_surface([loop,lopps...])
 
-        surfs = Int[]   #los surfs de los imanes
+        surfs_imp = Int[]   #los surfs de los imanes
+        surfs_par = Int[]
         for i in 1:n_imanes
             srf = gmsh.model.geo.add_plane_surface([lopps[i]])
-            push!(surfs, srf)
+            if i%2 == 0
+            push!(surfs_par, srf)
+            else
+            push!(surfs_imp, srf)
+            end
         end
 
         #Synchronize model
@@ -117,7 +122,9 @@ export magnet_setup_grid
         gmsh.model.add_physical_group(2,[surf], -1, "AIR")
 
         #Imanes
-        gmsh.model.add_physical_group(2, surfs, -1, "magnets")
+        gmsh.model.add_physical_group(2, surfs_imp, -1, "magnets_impar")
+        gmsh.model.add_physical_group(2, surfs_par, -1, "magnets_par")
+
 
 
         #Generate 2d Mesh
