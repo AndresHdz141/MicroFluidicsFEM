@@ -8,12 +8,14 @@ include("../src/particula/fields_eval.jl")
 include("../src/particula/Physics.jl")
 include("../src/particula/solvers.jl")
 include("../src/Data_analisis/data.jl")
+include("../src/Data_analisis/GraphData.jl")
 
 using .structdata
 using .evaluate_fields
 using .Physics
 using .solvers
 using .Data
+using .DataGraph
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
 
 
@@ -47,13 +49,16 @@ function main(name)
     mag_eval = setup_fast_eval(mag_data[1], mag_data[2], :_)
     println("GENERATED DATA TREES")
     #generar Environment
+    length = 28.0
     env = structdata.EnvironmentData()
+    env.x_min_c = -length/2;  env.x_max_c = length/2                 
+
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 5000
+    n_particles = 500
     dt = 0.01
 
-    sim_seconds = 6
+    sim_seconds = 10
     max_steps = round(Int, sim_seconds / dt) 
     save_interval = 1
     hist_size = cld(max_steps, save_interval)
@@ -71,7 +76,7 @@ function main(name)
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
             acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 0.91   #Adimensional
+            ΔXᵣ = 1.3   #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
@@ -101,9 +106,10 @@ function main(name)
             if !colision
             RK4!_vel(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
             #println("RK4[",step, "]")
-                if hz.pos[2] < 0.0 + hz.diam/2+0.02
+                in_zone = env.x_min_c < hz.pos[1] < env.x_max_c
+                if in_zone && hz.pos[2] < 0.0 + hz.diam/2+env.gap_cap
                     fluid_vel =  fast_evaluate_field(pos_ant, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
-                    hz.vel = fluid_vel * 0.2
+                    hz.vel = fluid_vel * 0.0
                     hz.pos = pos_ant + hz.vel*dt
                     hz.acc = SVector{2,Float64}(0.0,0.0)
                     step +=1
@@ -113,13 +119,8 @@ function main(name)
                         acc_hist[step] = hz.acc
                     end
                     colision = true
-                    continue
+                    break
                 end
-            else
-                fluid_vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u) 
-                hz.vel = fluid_vel * 0.2
-                hz.pos = hz.pos + hz.vel*dt
-                hz.acc = SVector{2,Float64}(0.0,0.0)
             end
             #Si la posicion[2] part <=
             #Revisar si hay colision o si llega al final del circuito
@@ -155,26 +156,15 @@ function main(name)
     println("No capturadas = ", part_nocapt)
     println("Eficiencia: ", part_capt/n_particles*100, "%")
     #Ejecutar codigo
-    PlotTray(all_particle_data)
+    AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
+    PlotTray(all_particle_data, f_data[1], mag_data[1], env, 0.8/2)
     readline()
     #Guardar valores de las n particulas
 
     return 
 end
 
-function PlotTray(data)
-    fig = Figure(size = (1920, 1080))
-    ax = Axis(
-            fig[1, 1],
-            title = "Trayectorias de particulas",
-            xlabel = "X (10⁻⁶ m)",
-            ylabel = "Y (10⁻⁶ m)",
-        )
-    for part in data
-        lines!(ax, part.pos,color = :red, alpha = 0.5)
-    end
-    display(fig)
-end
+
 
 main("RBC_TROPHOZOITE")
 
