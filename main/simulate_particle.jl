@@ -18,7 +18,7 @@ using .Data
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
 
 
-function main()
+function main(name)
     #=
         /\_/\
     = ( • . • ) =
@@ -51,7 +51,7 @@ function main()
     env = structdata.EnvironmentData()
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 100
+    n_particles = 5000
     dt = 0.01
 
     sim_seconds = 6
@@ -77,8 +77,8 @@ function main()
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
         hz.vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
-        println("Pos0:", hz.pos)
-        println("Vel0:", hz.vel)
+        #println("Pos0:", hz.pos)
+        #println("Vel0:", hz.vel)
 
         #Generar almacenamiento de historia de particula, pos, vel, acc, etc (lo necesario unicamente)
         pos_hist = Vector{SVector{2, Float64}}(undef, hist_size) 
@@ -102,9 +102,9 @@ function main()
             if !colision
             RK4!_vel(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
             #println("RK4[",step, "]")
-                if hz.pos[2] < 0.0 + hz.diam
+                if hz.pos[2] < 0.0 + hz.diam/2+0.02
                     fluid_vel =  fast_evaluate_field(pos_ant, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
-                    hz.vel = fluid_vel
+                    hz.vel = fluid_vel * 0.2
                     hz.pos = pos_ant + hz.vel*dt
                     hz.acc = SVector{2,Float64}(0.0,0.0)
                     step +=1
@@ -118,7 +118,7 @@ function main()
                 end
             else
                 fluid_vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u) 
-                hz.vel = fluid_vel
+                hz.vel = fluid_vel * 0.2
                 hz.pos = pos_ant + hz.vel*dt
                 hz.acc = SVector{2,Float64}(0.0,0.0)
             end
@@ -143,11 +143,18 @@ function main()
     end
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     println("SIMULACION FINALIZADA")
+    join_name = name * ".jld2"
+    path = joinpath("data", "particulas", join_name)
+    jldsave(path;
+        data = all_particle_data
+    )
+
     part_capt, part_nocapt = inenout(all_particle_data)
 
     println("total = ", n_particles)
     println("capturadas = ", part_capt)
     println("No capturadas = ", part_nocapt)
+    println("Eficiencia: ", part_capt/n_particles*100, "%")
     #Ejecutar codigo
     PlotTray(all_particle_data)
     readline()
@@ -170,5 +177,5 @@ function PlotTray(data)
     display(fig)
 end
 
-main()
+main("RBC_TROPHOZOITE")
 

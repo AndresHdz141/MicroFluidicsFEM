@@ -1,7 +1,7 @@
 module Data
 
 using StaticArrays
-
+export inenout
 
 function inenout(data)
     
