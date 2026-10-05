@@ -27,6 +27,10 @@ Base.@kwdef mutable struct EnvironmentData
     η::Float64 = (3.5*1e-3) * 1e-5         #kg/ms -> kg/us
     dens::Float64 = 1056 * 1e-15   #kg/m^2 -> kg/u³ - Densidad agua/plasma
     g::SVector{2, Float64} = (0.0,0.0) .* 1e5 #m/s^2 -> u/s^2
+    δc::Float64 = 0.02                  
+    gap_cap::Float64 = 0.05          
+    x_min_c::Float64 = 0.0
+    x_max_c::Float64 = 0.0
 end
 
 struct ParticleHandler
