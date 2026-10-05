@@ -50,10 +50,10 @@ function main(name)
     env = structdata.EnvironmentData()
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 5000
+    n_particles = 100
     dt = 0.01
 
-    sim_seconds = 6
+    sim_seconds = 10
     max_steps = round(Int, sim_seconds / dt) 
     save_interval = 1
     hist_size = cld(max_steps, save_interval)
@@ -71,7 +71,7 @@ function main(name)
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
             acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 0.91   #Adimensional
+            ΔXᵣ = 0.0                          #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
