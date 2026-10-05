@@ -1,5 +1,4 @@
 using Pkg
-using Revise
 
 Pkg.activate(".")
 Pkg.instantiate()
@@ -119,7 +118,7 @@ function main(name)
             else
                 fluid_vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u) 
                 hz.vel = fluid_vel * 0.2
-                hz.pos = pos_ant + hz.vel*dt
+                hz.pos = hz.pos + hz.vel*dt
                 hz.acc = SVector{2,Float64}(0.0,0.0)
             end
             #Si la posicion[2] part <=
