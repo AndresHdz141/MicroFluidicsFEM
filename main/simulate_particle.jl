@@ -70,7 +70,7 @@ function main()
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
             acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 0.91    #Adimensional
+            ΔXᵣ = 0.91   #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )

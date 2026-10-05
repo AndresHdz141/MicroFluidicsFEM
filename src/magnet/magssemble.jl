@@ -31,13 +31,17 @@ export magssemble_system!
         magnets_par = getcellset(magrid, "magnets_par")
         magnet_domain = union(magnets_imp, magnets_par)
 
-        else
+        elseif array ==2
         magnets_1 = getcellset(magrid, "magnets_1")
         magnets_2 = getcellset(magrid, "magnets_2")
         magnets_3 = getcellset(magrid, "magnets_3")
         magnets_4 = getcellset(magrid, "magnets_4")
         magnet_domain = union(magnets_1, magnets_2, magnets_3, magnets_4)
+        else
+            magnets = getcellset(magrid, "magnets")
+            
         end
+    
 
         for (i,cell) in enumerate(CellIterator(dh))
             reinit!(cvu,cell)
@@ -59,7 +63,7 @@ export magssemble_system!
                         μ= μ₀
                         Bᵣ= Bᵣ₂
                     end #:)
-                else 
+                elseif array == 2
                     if i in magnet_domain
                         μ = μᵣ*μ₀
                         Bᵣ = i in magnets_1 ? Bᵣ₁y : i in magnets_2 ? -Bᵣ₁x : i in magnets_3 ? -Bᵣ₁y : Bᵣ₁x
@@ -67,6 +71,9 @@ export magssemble_system!
                         μ= μ₀
                         Bᵣ= Bᵣ₂
                     end
+                else
+                    μ = i in magnets ? μᵣ*μ₀ : μ₀
+                    Bᵣ = i in magnets ? Bᵣ₁y : Bᵣ₂
                 end
 
             Mᵣ = Bᵣ / μ₀

@@ -112,7 +112,7 @@ export magnet_setup_grid
             end
         end
 
-        else
+        elseif array == 2
             surfs_1 = Int[]
             surfs_2 = Int[]
             surfs_3 = Int[]
@@ -130,7 +130,13 @@ export magnet_setup_grid
                     surf_action[mod1(i, 4)](srf)
                 end
                 push_surf(num)
-            end     
+            end    
+        else
+            surfs = Int[]
+            for i in 1:n_imanes
+            srf = gmsh.model.geo.add_plane_surface([lopps[i]])
+            push!(surfs, srf)
+            end
         end
 
         #Synchronize model
@@ -152,11 +158,13 @@ export magnet_setup_grid
             gmsh.model.add_physical_group(2, surfs_imp, -1, "magnets_impar")
             gmsh.model.add_physical_group(2, surfs_par, -1, "magnets_par")
 
-        else
+        elseif array == 2
             gmsh.model.add_physical_group(2, surfs_1, -1, "magnets_1")
             gmsh.model.add_physical_group(2, surfs_2, -1, "magnets_2")
             gmsh.model.add_physical_group(2, surfs_3, -1, "magnets_3")
             gmsh.model.add_physical_group(2, surfs_4, -1, "magnets_4")
+        else
+            gmsh.model.add_physical_group(2, surfs, -1, "magnets")
         end
 
 
