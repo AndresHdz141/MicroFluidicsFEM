@@ -52,13 +52,12 @@ function main()
     n_particles = 100
     dt = 0.01
 
-    sim_seconds = 5
+    sim_seconds = 6
     max_steps = round(Int, sim_seconds / dt) 
     save_interval = 1
     hist_size = cld(max_steps, save_interval)
     all_particle_data = Vector{structdata.ParticleHandler}(undef, n_particles)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
-
     #caso = Evento() - Falta crear un struct
     #loop para cada n particula
     for i ∈ 1:n_particles
@@ -71,7 +70,7 @@ function main()
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
             acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 1.8    #Adimensional
+            ΔXᵣ = 1.9    #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )

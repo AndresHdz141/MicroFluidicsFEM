@@ -119,13 +119,17 @@ export magnet_setup_grid
             surfs_4 = Int[]
 
             for num in 1:n_imanes
-
                 srf = gmsh.model.geo.add_plane_surface([lopps[num]])
-                num%4 == 0 && (push!(surfs_4, srf); continue)
-                num%3 == 0 &&  (push!(surfs_3, srf); continue)
-                num%2 == 0 &&  (push!(surfs_2, srf); continue)
-                push!(surfs_1, srf)
-
+                surf_action = [
+                (x) -> push!(surfs_1, x),
+                (x) -> push!(surfs_2, x),
+                (x) -> push!(surfs_3, x),
+                (x) -> push!(surfs_4, x)
+                ]
+                function push_surf(i)
+                    surf_action[mod1(i, 4)](srf)
+                end
+                push_surf(num)
             end     
         end
 

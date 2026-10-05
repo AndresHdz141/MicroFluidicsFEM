@@ -5,14 +5,15 @@ export magssemble_system!
 
     #esto es lo chido hay que reafirmar que las ecuaciones son correctas
     #ahorita lo checamos
-    function magssemble_system!(k,f,dh,cvu, magrid)
+    function magssemble_system!(k,f,dh,cvu, array, magrid)
 
 
         μ₀ = (4*pi)*1e-7
         μᵣ = 1.05 #Permeabilidad relativa neodimio
 
-        Bᵣ₁ =  Ferrite.Vec{2,Float64}((0,1.2)) 
-        Bᵣ₂ = Ferrite.Vec{2,Float64}((0, 0))
+        Bᵣ₁x =  Ferrite.Vec{2,Float64}((1.2,0.0)) 
+        Bᵣ₁y =  Ferrite.Vec{2,Float64}((0.0,1.2)) 
+        Bᵣ₂ = Ferrite.Vec{2,Float64}((0.0, 0.0))
 
         magassembler = start_assemble(k,f)
         ke = zeros(ndofs_per_cell(dh),ndofs_per_cell(dh))
@@ -25,9 +26,18 @@ export magssemble_system!
         println("TOTAL CELLS> ", total_cells)
         ∇ϕ = Vector{Ferrite.Vec{2,Float64}}(undef, ndofs_u)
         
+        if array == 1
         magnets_imp = getcellset(magrid, "magnets_impar")
         magnets_par = getcellset(magrid, "magnets_par")
+        magnet_domain = union(magnets_imp, magnets_par)
 
+        else
+        magnets_1 = getcellset(magrid, "magnets_1")
+        magnets_2 = getcellset(magrid, "magnets_2")
+        magnets_3 = getcellset(magrid, "magnets_3")
+        magnets_4 = getcellset(magrid, "magnets_4")
+        magnet_domain = union(magnets_1, magnets_2, magnets_3, magnets_4)
+        end
 
         for (i,cell) in enumerate(CellIterator(dh))
             reinit!(cvu,cell)
@@ -40,13 +50,24 @@ export magssemble_system!
             ke .= 0
             fe .= 0
             for qp ∈ 1:getnquadpoints(cvu)
-                if i in magnets_imp || i in magnets_par
-                    μ = μᵣ*μ₀
-                    Bᵣ = i in magnets_par ? Bᵣ₁ : -Bᵣ₁
-                else
-                    μ= μ₀
-                    Bᵣ= Bᵣ₂
-                end #:)
+
+                if array == 1
+                    if i in magnet_domain
+                        μ = μᵣ*μ₀
+                        Bᵣ = i in magnets_par ? Bᵣ₁y : -Bᵣ₁y
+                    else
+                        μ= μ₀
+                        Bᵣ= Bᵣ₂
+                    end #:)
+                else 
+                    if i in magnet_domain
+                        μ = μᵣ*μ₀
+                        Bᵣ = i in magnets_1 ? Bᵣ₁y : i in magnets_2 ? -Bᵣ₁x : i in magnets_3 ? -Bᵣ₁y : Bᵣ₁x
+                    else
+                        μ= μ₀
+                        Bᵣ= Bᵣ₂
+                    end
+                end
 
             Mᵣ = Bᵣ / μ₀
 
