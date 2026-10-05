@@ -8,11 +8,13 @@ include("../src/particula/structs.jl")
 include("../src/particula/fields_eval.jl")
 include("../src/particula/Physics.jl")
 include("../src/particula/solvers.jl")
+include("../src/Data_analisis/data.jl")
 
 using .structdata
 using .evaluate_fields
 using .Physics
 using .solvers
+using .Data
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
 
 
@@ -141,6 +143,11 @@ function main()
     end
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     println("SIMULACION FINALIZADA")
+    part_capt, part_nocapt = inenout(all_particle_data)
+
+    println("total = ", n_particles)
+    println("capturadas = ", part_capt)
+    println("No capturadas = ", part_nocapt)
     #Ejecutar codigo
     PlotTray(all_particle_data)
     readline()
