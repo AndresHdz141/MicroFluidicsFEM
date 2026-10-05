@@ -3,7 +3,7 @@ module Data
 using StaticArrays
 export inenout
 
-function inenout(data)
+function inenout(data, height)
     
     part_capt = 0
     part_nocapt = 0
@@ -11,7 +11,7 @@ function inenout(data)
     for part in data
         final_pos = part.pos[end]
 
-        if final_pos[2] < 0
+        if final_pos[2] < height/2
             part_capt += 1
         else
             part_nocapt += 1

@@ -148,7 +148,7 @@ function main(name)
         data = all_particle_data
     )
 
-    part_capt, part_nocapt = inenout(all_particle_data)
+    part_capt, part_nocapt = inenout(all_particle_data, 4)
 
     println("total = ", n_particles)
     println("capturadas = ", part_capt)
