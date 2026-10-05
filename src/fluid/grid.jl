@@ -35,7 +35,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         y6 = height+a*sind(phi)
         y7 = height
         # Coordenadas de los puntos superiores de las ranuras
-        y_ranuras = height + height/4 # Altura de las ranuras
+        y_ranuras = height + height/3 # Altura de las ranuras
 
         #Add points
         #Origin

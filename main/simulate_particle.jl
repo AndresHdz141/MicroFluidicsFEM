@@ -49,16 +49,15 @@ function main()
     env = structdata.EnvironmentData()
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 10
+    n_particles = 100
     dt = 0.01
 
-    sim_seconds = 5
+    sim_seconds = 6
     max_steps = round(Int, sim_seconds / dt) 
     save_interval = 1
     hist_size = cld(max_steps, save_interval)
     all_particle_data = Vector{structdata.ParticleHandler}(undef, n_particles)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
-
     #caso = Evento() - Falta crear un struct
     #loop para cada n particula
     for i ∈ 1:n_particles
@@ -71,7 +70,7 @@ function main()
             pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
             vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
             acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 1.8    #Adimensional
+            ΔXᵣ = 0.91   #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
@@ -91,13 +90,37 @@ function main()
         #step = 1
         step = 1
         time = 0.0
+        colision = false
         #while step < max_steps
         while step < max_steps
             #posicion anterior = obj.pos (Puede funcionar)
             pos_ant = hz.pos
             #aumentar timpo t por un dt, RK4! y aumentar un step 
             time += dt
+            if !colision
             RK4!_vel(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
+            #println("RK4[",step, "]")
+                if hz.pos[2] < 0.0 + hz.diam
+                    fluid_vel =  fast_evaluate_field(pos_ant, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
+                    hz.vel = fluid_vel
+                    hz.pos = pos_ant + hz.vel*dt
+                    hz.acc = SVector{2,Float64}(0.0,0.0)
+                    step +=1
+                    if step % save_interval ==0
+                        pos_hist[step] = hz.pos
+                        vel_hist[step] = hz.vel
+                        acc_hist[step] = hz.acc
+                    end
+                    colision = true
+                    continue
+                end
+            else
+                fluid_vel = fast_evaluate_field(hz.pos, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u) 
+                hz.vel = fluid_vel
+                hz.pos = pos_ant + hz.vel*dt
+                hz.acc = SVector{2,Float64}(0.0,0.0)
+            end
+            #Si la posicion[2] part <=
             #Revisar si hay colision o si llega al final del circuito
             #Guardar historia con valores nuevos
             step +=1

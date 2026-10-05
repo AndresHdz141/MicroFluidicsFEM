@@ -15,9 +15,9 @@ using .magsetup
 using .PostProcess
 
 
-function main(length, height,n, h = 0.05)
+function main(length, height,n, halbach_array, h = 0.05)
 
-    grid = magnet_setup_grid(length, height,n, h)
+    grid = magnet_setup_grid(length, height,n, halbach_array, h)
     println("Grid listo")
     #Interpolation
     ipu = Lagrange{RefTriangle, 2}()
@@ -40,7 +40,7 @@ function main(length, height,n, h = 0.05)
     f = zeros(ndofs(dh))
     println("Coupling listo")
 
-    magssemble_system!(K,f,dh,cvu, grid)
+    magssemble_system!(K,f,dh,cvu,halbach_array, grid)
     println("Assemble listo")
 
     apply!(K,f,ch)
@@ -71,4 +71,4 @@ function main(length, height,n, h = 0.05)
     return
 end
 
-main(24.0, 4.0,7, 0.1) #μm - μm - n_imanes - h_size
+main(28.0, 4.0,4, false, 0.1) #μm - μm - n_imanes - h_size

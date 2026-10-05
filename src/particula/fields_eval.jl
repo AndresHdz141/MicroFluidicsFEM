@@ -59,7 +59,7 @@ function fast_evaluate_field(pos::SVector{2, Float64}, tree::KDTree, grid, dh, f
          (0,0)---(1,0)
 
          En donde un punto (x,y) se puede expresar en estas coordenadas al realizar una transormacion
-         En donde>
+         En donde:
          x(ξ, η) = x1 + (x2-x1)ξ + (x3-x1)η
          En donde para resolver por ξ y η
          x-x1 = (x2-x1)ξ + (x3-x1)η
