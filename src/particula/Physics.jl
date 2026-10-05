@@ -29,7 +29,7 @@ module Physics
         #Arrastre con correccion de Faxén cerca de las pareces.
         λp, λn = wall_drag(ξ)
         #vel_fluido veces el shear se le suma la fuerza magnetica dividido entre el arrastre corregido
-        v_x = u_f[1] + F_m[1] / (τ * λp)  #f_shear(ξ)*
+        v_x = u_f[1] + F_m[1] / (τ * λp)  
         #velocidad de fluido se considera 0 (La particula no sube ni baja), Fuerza magnetica con arrastre corregido
         v_y = u_f[2]+ F_m[2] / (τ * λn)
         #Regresa ambos valores en sus componentes como vector
@@ -43,13 +43,6 @@ module Physics
         return 1 / max(den_p, 1e-3), 1 / max(den_n, 1e-3)    #parallel and normal parts
     end
     #
-    function f_shear(ξ)
-        r = 1/(1+ξ)
-        far = 1 - 5/16 * r^3
-        near = 0.7431 /(0.6376 - 0.2 * log(ξ))
-        w = clamp((ξ - 0.5) / 1.5, 0.0, 1.0)           # blend ξ = 0.5 → 2
-        return (1 - w) * near + w * far
-    end
 
     function magforce(obj::Hemozoin, env::EnvironmentData, mag_data, mag_eval, c_pos)
         μ₀ = env.μ₀
