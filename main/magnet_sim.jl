@@ -71,4 +71,4 @@ function main(length, height,n, halbach_array, h = 0.05)
     return
 end
 
-main(28.0, 4.0,4, false, 0.1) #μm - μm - n_imanes - h_size
+main(28.0, 4.0,4, false, 0.1) #μm - μm - n_imanes - arreglo: 1 = alterno, 2 = halbach, 0 = unidireccional -h_size 
