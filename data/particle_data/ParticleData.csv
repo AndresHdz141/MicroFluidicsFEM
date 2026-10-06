@@ -1,0 +1,6 @@
+tag,Nombre,masa_mean,masa_sd,vol_mean,vol_sd,diam_mean,diam_sd,densidad,X
+0,unidad,pg,pg,fL,fL,micro_m,micro_m,g_m3,Nan
+1,RBC_Healthy,31.5,4.5,90,14.14213562,5.5601,0.2912,1.15,0.01
+2,RBC_Infected_ring,33.25,0.35,88.5,8.07,5.529,0.1681,1.15,0.82
+3,RBC_Infected_trophozoite,24.12,10.39,70.5,10,5.1254,0.2423,1.106,0.91
+4,RBC_Infected_schizont,11,7.77,68,9,5.0641,0.2234,1.09,1.8

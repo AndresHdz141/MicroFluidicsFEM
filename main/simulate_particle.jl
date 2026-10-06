@@ -1,8 +1,4 @@
-using Pkg
-
-Pkg.activate(".")
-Pkg.instantiate()
-
+module simulate_cell
 include("../src/particula/structs.jl")
 include("../src/particula/fields_eval.jl")
 include("../src/particula/Physics.jl")
@@ -16,46 +12,24 @@ using .Physics
 using .solvers
 using .Data
 using .DataGraph
-using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie
+using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie, Distributions, Random
 
-
-function main(name)
+export particle_simulation
+function particle_simulation(name, length, f_data, mag_data, env, particle_data, n_particles)
     #=
         /\_/\
     = ( • . • ) =
       /      \     
     =#  
-    #Leer campo de fluido y de campo magnetico
-    file = jldopen("data/fluid_data.jld2", "r")
-    f_name =  file["f_name"]
-    f_grid = file["f_mesh"]
-    f_dh = file["f_dh"]
-    f_field = file["f_u"] 
-    close(file)
 
-    file = jldopen("data/magnetic_data.jld2", "r")
-    mag_name =  file["mag_name"]
-    mag_grid = file["mag_mesh"]
-    mag_dh = file["mag_projector"]
-    mag_field = file["mag_H2_field"] 
-    close(file)
-
-    println("READ FIELD DATA")
-    #Vector de campos de velocidades y magneticos
-    f_data = (f_grid, f_dh, f_field)
-    mag_data = (mag_grid, mag_dh.dh, mag_field)
     #Obtener arbles del campo de fluidos y magnetico
     fluid_eval = setup_fast_eval(f_data[1], f_data[2], :u)
     mag_eval = setup_fast_eval(mag_data[1], mag_data[2], :_)
     println("GENERATED DATA TREES")
     #generar Environment
-    length = 28.0
-    env = structdata.EnvironmentData()
-    env.x_min_c = -length/2;  env.x_max_c = length/2                 
 
     println("GENERATED ENVIRONMENT DATA")
     #N de particulas y max_steps
-    n_particles = 500
     dt = 0.01
 
     sim_seconds = 10
@@ -66,17 +40,29 @@ function main(name)
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
     #caso = Evento() - Falta crear un struct
     #loop para cada n particula
+    Random.seed!(42)
+    part_vol_μ = particle_data[5]
+    part_vol_σ = particle_data[6]
+    dist_vol = Truncated(Normal(part_vol_μ,part_vol_σ), max(0.1, part_vol_μ - 4*part_vol_σ), part_vol_μ + 4*part_vol_σ)
+
     for i ∈ 1:n_particles
         #Generar particula del tipo struct ::Hemozoin
+        volumen_particula = rand(dist_vol)
+        diametro_particula = 2 * ( (3 * volumen_particula) / (4 * π) )^(1/3)
+        masa_particula = volumen_particula*particle_data[9]
+        println("Simulated Particle Properties:")
+        println("Masa: $masa_particula pg")
+        println("Volumen: $volumen_particula fL")
+        println("Diametro: $diametro_particula μm")
         hz = Hemozoin(
-            mass = 3.3* 1e-14, #kg
-            volumen = (4/3)*pi*(4)^3 * 1e-3,  #μm^3 -> u^-3
-            diam = 8 * 1e-1,       #μm -> 10^-1 u (e-6-1)
-            dens = 1.15* 1e-12,     #g/m^3 -> 10^-12 kg/u^3
-            pos = SVector{2,Float64}(0.0,0.0), #u -> 10μm
-            vel = SVector{2,Float64}(0.0,0.0), #u/2 -> 10μm/s
-            acc = SVector{2, Float64}(0.0, 0.0), #u/s^2 -> 10μm/s^2
-            ΔXᵣ = 1.3   #Adimensional
+            mass = masa_particula                  * 1e-15,    # pg -> kg
+            volumen = volumen_particula    * 1e-3,     # μm^3 -> u^-3
+            diam = diametro_particula                    * 1e-1,     # μm -> 10^-1 u (e-6-1)
+            dens = particle_data[9]                 * 1e-12,    # g/m^3 -> 10^-12 kg/u^3
+            pos = SVector{2,Float64}(0.0,0.0),      # u -> 10μm
+            vel = SVector{2,Float64}(0.0,0.0),      # u/s -> 10μm/s
+            acc = SVector{2, Float64}(0.0, 0.0),    # u/s^2 -> 10μm/s^2
+            ΔXᵣ = particle_data[10]                              #Adimensional
             )
 
         hz.pos = pos_inicial(f_data[1], "IN1",hz.diam )
@@ -144,27 +130,24 @@ function main(name)
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     println("SIMULACION FINALIZADA")
     join_name = name * ".jld2"
-    path = joinpath("data", "particulas", join_name)
+    path = joinpath("data", "particle_sim_data", join_name)
     jldsave(path;
         data = all_particle_data
     )
 
     part_capt, part_nocapt = inenout(all_particle_data, 4)
 
-    println("total = ", n_particles)
-    println("capturadas = ", part_capt)
-    println("No capturadas = ", part_nocapt)
+    #println("total = ", n_particles)
+    #println("capturadas = ", part_capt)
+    #println("No capturadas = ", part_nocapt)
     println("Eficiencia: ", part_capt/n_particles*100, "%")
     #Ejecutar codigo
-    AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
-    PlotTray(all_particle_data, f_data[1], mag_data[1], env, 0.8/2)
-    readline()
+    #AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
+    #PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
+    #readline()
     #Guardar valores de las n particulas
 
-    return 
+    return part_capt/n_particles
 end
 
-
-
-main("RBC_TROPHOZOITE")
-
+end

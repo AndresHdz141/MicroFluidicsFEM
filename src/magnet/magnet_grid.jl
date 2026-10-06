@@ -5,7 +5,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
 
 export magnet_setup_grid
 
-    function magnet_setup_grid(L, height,n_imanes, array, h=0.05)
+    function magnet_setup_grid(L, height,n_imanes,dist_iman, array, h=0.05)
 
         a = L/2 
         paso = L / n_imanes
@@ -23,7 +23,7 @@ export magnet_setup_grid
         #coordenadas para los imanes
 
         x_init = -a  + (paso-lado)/2
-        y_init = -height/8 -lado
+        y_init = -dist_iman -lado
 
         #crea los puntos de los imanes partiendo de unas cordenadas iniciales
         imanes= Vector{Vector{Int}}()
