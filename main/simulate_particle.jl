@@ -92,6 +92,7 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
             if !colision
             RK4!_vel(hz, env, f_data, fluid_eval, mag_data, mag_eval, dt)
             #println("RK4[",step, "]")
+
                 in_zone = env.x_min_c < hz.pos[1] < env.x_max_c
                 if in_zone && hz.pos[2] < 0.0 + hz.diam/2+env.gap_cap
                     fluid_vel =  fast_evaluate_field(pos_ant, fluid_eval[1], f_data[1], f_data[2], f_data[3], fluid_eval[2], :u)
@@ -106,6 +107,7 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
                     end
                     colision = true
                     break
+                    
                 end
             end
             #Si la posicion[2] part <=
