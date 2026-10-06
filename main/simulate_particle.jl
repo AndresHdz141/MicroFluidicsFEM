@@ -50,10 +50,10 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
         volumen_particula = rand(dist_vol)
         diametro_particula = 2 * ( (3 * volumen_particula) / (4 * π) )^(1/3)
         masa_particula = volumen_particula*particle_data[9]
-        println("Simulated Particle Properties:")
-        println("Masa: $masa_particula pg")
-        println("Volumen: $volumen_particula fL")
-        println("Diametro: $diametro_particula μm")
+        #println("Simulated Particle Properties:")
+        #println("Masa: $masa_particula pg")
+        #println("Volumen: $volumen_particula fL")
+        #println("Diametro: $diametro_particula μm")
         hz = Hemozoin(
             mass = masa_particula                  * 1e-15,    # pg -> kg
             volumen = volumen_particula    * 1e-3,     # μm^3 -> u^-3
@@ -144,9 +144,9 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
     #println("No capturadas = ", part_nocapt)
     println("Eficiencia: ", part_capt/n_particles*100, "%")
     #Ejecutar codigo
-    #AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
-    #PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
-    #readline()
+    AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
+    PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
+    readline()
     #Guardar valores de las n particulas
 
     return part_capt/n_particles

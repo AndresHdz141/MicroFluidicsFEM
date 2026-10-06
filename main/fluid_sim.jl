@@ -12,7 +12,7 @@ using .setup
 
 export fluid_sim
 
-    function fluid_sim(length, height,n_ranuras,nombre, angle_d,h=0.05)
+    function fluid_sim(length, height,vel_buffer,n_ranuras,nombre, angle_d,h=0.05)
 
         #setup grid
         grid = setup_grid(length, height, angle_d,n_ranuras, h)
@@ -32,7 +32,7 @@ export fluid_sim
         println("FE Values listo")
 
         #Boundary conditions
-        ch = setup_constraints(dh, angle_d, height)
+        ch = setup_constraints(dh, angle_d, height, vel_buffer)
         println("Constraints listo")
 
         coupling = [true true; true false]

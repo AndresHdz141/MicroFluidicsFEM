@@ -33,12 +33,12 @@ end
 
 
 
-function setup_constraints(dh, angle, height)
+function setup_constraints(dh, angle, height, vel_buffer)
     ch = ConstraintHandler(dh)
     #Inlet Constraints
     θ = deg2rad(angle)
     U_max1 = 7.5 #u/s
-    U_max2 = 12.0 #u/s
+    U_max2 = vel_buffer #u/s
     c_in1 = boundary_center(dh.grid, "IN1")
     c_in2 = boundary_center(dh.grid, "IN2")
 

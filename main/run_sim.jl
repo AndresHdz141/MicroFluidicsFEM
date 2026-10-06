@@ -17,13 +17,14 @@ using .simulate_cell
 
 using CSV, DataFrames, JLD2
 
-function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro,n_ran, n_iman, n_particulas)
+function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, vel_buffer_micro,n_ran, n_iman, n_particulas)
 
     #Leer valores iniciales. #micro esta en micrometros, u esta en unidad del codigo 
     #10 micrometros = 1 unidad de longitud
     longitud_u = longitud_micro/10
     altura_u= altura_micro/10
     angulo = angulo_canal
+    vel_buffer_u = vel_buffer_micro/10
     num_ranuras = n_ran
     cant_imanes = n_iman
     dist_imanes_u = dist_imanes_micro/10
@@ -34,9 +35,10 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro,n_
     #Generar fluido
     if simular_nuevo
     println("SIMULANDO FLUIDO")
-    fluid_sim(longitud_u, altura_u, num_ranuras, "Campo_Fluido", angulo)
+    fluid_sim(longitud_u, altura_u, vel_buffer_u, num_ranuras, "Campo_Fluido", angulo)
     #Generar tres arreglos de imanes
     println("_________________________")
+    grid = 
     #Unipolar
     println("SIMULANDO ARREGLO UNIPOLAR")
     mag_sim(longitud_u, altura_u, cant_imanes, 0, "Unipolar", dist_imanes_u)
@@ -120,6 +122,7 @@ main_run(
     40,           #Altura Canal     | μm
     35,           #Angulo del Canal | °
     10,           #Dist iman-canal  | μm
+    80,           #Velocidad buffer | μm/s
     5,            #Num. ranuras     | n
     4,            #Num. imanes      | n
     100           #Num. Particulas  | n
