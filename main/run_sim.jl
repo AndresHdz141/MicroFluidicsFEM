@@ -125,5 +125,5 @@ main_run(
     80,           #Velocidad buffer | μm/s
     5,            #Num. ranuras     | n
     4,            #Num. imanes      | n
-    100           #Num. Particulas  | n
+    100              #Num. Particulas  | n
     )
