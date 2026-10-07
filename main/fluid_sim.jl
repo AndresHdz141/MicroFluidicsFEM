@@ -50,7 +50,7 @@ export fluid_sim
 
         nombre_data = nombre * ".jld2"
         location_vis = joinpath("data", "visual_fluido", nombre)
-        location_data = joinpath("data", "campo_fluido", nombre_data)
+        location_data = joinpath("data", "particle_sim_data", nombre_data)
         VTKGridFile(location_vis, grid) do vtk
             write_solution(vtk, dh, u)
 

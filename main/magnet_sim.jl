@@ -55,7 +55,7 @@ export mag_sim
 
         nombre_data = nombre * ".jld2"
         location_vis = joinpath("data", "visual_imanes", nombre)
-        location_data = joinpath("data", "arreglos_imanes",nombre_data)
+        location_data = joinpath("data", "particle_sim_data",nombre_data)
         VTKGridFile(location_vis, grid) do vtk
         write_solution(vtk, dh, u, :Potential)
         write_projection(vtk, proj, H, "H_Field")   

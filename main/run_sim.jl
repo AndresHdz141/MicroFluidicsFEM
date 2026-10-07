@@ -61,8 +61,8 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
 
         
         array_type = ask_array_type()
-        fluid_location_data = joinpath(@__DIR__, "..","data", "campo_fluido", "Campo_Fluido.jld2")
-        magnet_location_data = joinpath(@__DIR__, "..","data", "arreglos_imanes",array_type)
+        fluid_location_data = joinpath(@__DIR__, "..","data", "particle_sim_data", "Campo_Fluido.jld2")
+        magnet_location_data = joinpath(@__DIR__, "..","data", "particle_sim_data",array_type)
         #Leer campo de fluido y de campo magnetico
             file = jldopen(fluid_location_data, "r")
             f_name =  file["f_name"]
@@ -86,17 +86,22 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
         #Extraes info de particula
         particle_path = joinpath(@__DIR__, "..", "data", "particle_data", "ParticleData.csv")
         df_particles = CSV.read(particle_path, DataFrame;header = 1, skipto = 3)
-        #Simular particula
-        particle_data = select_particle(df_particles)
-        println(particle_data)
+        #Simular particula sana
+        particle_1_data = select_particle(df_particles)
+        #Simular particula extra
+        particle_2_data = select_particle(df_particles)
+        println(particle_1_data)
+        println(particle_2_data)
 
         efficiency = particle_simulation(
-            particle_data[2],
+            particle_1_data[2],
+            particle_2_data[2],
             longitud_u,
             f_data,
             mag_data,
             env,
-            particle_data,
+            particle_1_data,
+            particle_2_data,
             n_particulas
         )
         #Generar Graficos
