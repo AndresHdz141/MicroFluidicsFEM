@@ -8,12 +8,15 @@ include("../src/ReadLineFunctions/interact.jl")
 include("magnet_sim.jl")
 include("fluid_sim.jl")
 include("simulate_particle.jl")
+include("../src/Data_analisis/GraphData.jl")
 
 using .structdata
 using .ask_data
 using .simulate_fluid
 using .simulate_magnet
 using .simulate_cell
+using .DataGraph
+
 
 using CSV, DataFrames, JLD2
 
@@ -90,9 +93,9 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
         particle_data = select_particle(df_particles)
         println(particle_data)
 
-        efficiency = particle_simulation(
+        pseudo_val,real_eff, data= particle_simulation(
             particle_data[2],
-            longitud_u,
+            altura_u,
             f_data,
             mag_data,
             env,
@@ -100,7 +103,8 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
             n_particulas
         )
         #Generar Graficos
-
+            AnimateParticles(data, f_data[1], mag_data[1], 0.4, 0.01)
+            PlotTray(data, f_data[1], mag_data[1], env, particle_data[7]/2)
 
         simulate_again = ask_simulate_again()
     end

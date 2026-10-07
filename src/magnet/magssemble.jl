@@ -65,11 +65,23 @@ export magssemble_system!
                     end #:)
                 elseif array == 2
                     if i in magnet_domain
-                        μ = μᵣ*μ₀
-                        Bᵣ = i in magnets_1 ? Bᵣ₁y : i in magnets_2 ? -Bᵣ₁x : i in magnets_3 ? -Bᵣ₁y : Bᵣ₁x
+                        μ = μᵣ * μ₀
+                        
+                        # Lógica explícita: si hay menos imanes, los grupos vacíos simplemente se ignoran
+                        if @isdefined(magnets_1) && i in magnets_1
+                            Bᵣ = Bᵣ₁y
+                        elseif @isdefined(magnets_2) && i in magnets_2
+                            Bᵣ = -Bᵣ₁x
+                        elseif @isdefined(magnets_3) && i in magnets_3
+                            Bᵣ = -Bᵣ₁y
+                        elseif @isdefined(magnets_4) && i in magnets_4
+                            Bᵣ = Bᵣ₁x
+                        else
+                            Bᵣ = Bᵣ₂ # Seguro por si algo sale del dominio
+                        end
                     else
-                        μ= μ₀
-                        Bᵣ= Bᵣ₂
+                        μ = μ₀
+                        Bᵣ = Bᵣ₂
                     end
                 else
                     μ = i in magnets ? μᵣ*μ₀ : μ₀

@@ -15,7 +15,7 @@ using .Data
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie, Distributions, Random
 
 export particle_simulation
-function particle_simulation(name, length, f_data, mag_data, env, particle_data, n_particles)
+function particle_simulation(name, channel_height, f_data, mag_data, env, particle_data, n_particles)
     #=
         /\_/\
     = ( • . • ) =
@@ -40,14 +40,14 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
     #Seleccion de Caso o proporcion de hemozoina (HZ) en particulas
     #caso = Evento() - Falta crear un struct
     #loop para cada n particula
-    Random.seed!(42)
+    rng = Random.Xoshiro(42)
     part_vol_μ = particle_data[5]
     part_vol_σ = particle_data[6]
     dist_vol = Truncated(Normal(part_vol_μ,part_vol_σ), max(0.1, part_vol_μ - 4*part_vol_σ), part_vol_μ + 4*part_vol_σ)
 
     for i ∈ 1:n_particles
         #Generar particula del tipo struct ::Hemozoin
-        volumen_particula = rand(dist_vol)
+        volumen_particula = rand(rng,dist_vol)
         diametro_particula = 2 * ( (3 * volumen_particula) / (4 * π) )^(1/3)
         masa_particula = volumen_particula*particle_data[9]
         #println("Simulated Particle Properties:")
@@ -137,19 +137,20 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
         data = all_particle_data
     )
 
-    part_capt, part_nocapt = inenout(all_particle_data, 4)
-
+    pseudo_val, part_capt = inenout(all_particle_data, channel_height, env)
+    real_eff = part_capt/n_particles*100
     #println("total = ", n_particles)
-    #println("capturadas = ", part_capt)
-    #println("No capturadas = ", part_nocapt)
-    println("Eficiencia: ", part_capt/n_particles*100, "%")
+    println("capturadas = ", part_capt)
+    println("No capturadas = ", n_particles-part_capt)
+    println("Eficiencia: ",real_eff , "%")
+    println("Pseudo-Eficiencia para Optimizacion: ", round(pseudo_val * 100, digits=2), "%")
     #Ejecutar codigo
     #AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
     #PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
     #readline()
     #Guardar valores de las n particulas
 
-    return part_capt/n_particles
+    return pseudo_val, real_eff, all_particle_data 
 end
 
 end
