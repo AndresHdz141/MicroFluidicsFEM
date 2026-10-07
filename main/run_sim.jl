@@ -38,7 +38,7 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
     fluid_sim(longitud_u, altura_u, vel_buffer_u, num_ranuras, "Campo_Fluido", angulo)
     #Generar tres arreglos de imanes
     println("_________________________")
-    grid = 
+    
     #Unipolar
     println("SIMULANDO ARREGLO UNIPOLAR")
     mag_sim(longitud_u, altura_u, cant_imanes, 0, "Unipolar", dist_imanes_u)

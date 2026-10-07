@@ -14,7 +14,7 @@ using .PostProcess
 
 export mag_sim
 
-    function mag_sim(length, height,n, arreglo,nombre,dist_iman, h = 0.1)
+    function mag_sim(length, height,n, arreglo,nombre,dist_iman, h = 0.4)
 
         grid = magnet_setup_grid(length, height,n,dist_iman, arreglo, h)
         println("Grid listo")

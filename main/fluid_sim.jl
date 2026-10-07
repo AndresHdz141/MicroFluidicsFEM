@@ -12,7 +12,7 @@ using .setup
 
 export fluid_sim
 
-    function fluid_sim(length, height,vel_buffer,n_ranuras,nombre, angle_d,h=0.05)
+    function fluid_sim(length, height,vel_buffer,n_ranuras,nombre, angle_d,h=0.1)
 
         #setup grid
         grid = setup_grid(length, height, angle_d,n_ranuras, h)

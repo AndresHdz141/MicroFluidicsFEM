@@ -4,14 +4,14 @@ include("../src/particula/fields_eval.jl")
 include("../src/particula/Physics.jl")
 include("../src/particula/solvers.jl")
 include("../src/Data_analisis/data.jl")
-include("../src/Data_analisis/GraphData.jl")
+#include("../src/Data_analisis/GraphData.jl")
 
 using .structdata
 using .evaluate_fields
 using .Physics
 using .solvers
 using .Data
-using .DataGraph
+#sing .DataGraph
 using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays, JLD2, StaticArrays, GLMakie, Distributions, Random
 
 export particle_simulation
@@ -144,9 +144,9 @@ function particle_simulation(name, length, f_data, mag_data, env, particle_data,
     #println("No capturadas = ", part_nocapt)
     println("Eficiencia: ", part_capt/n_particles*100, "%")
     #Ejecutar codigo
-    AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
-    PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
-    readline()
+    #AnimateParticles(all_particle_data, f_data[1], mag_data[1], 0.4, dt)
+    #PlotTray(all_particle_data, f_data[1], mag_data[1], env, particle_data[7]/2)
+    #readline()
     #Guardar valores de las n particulas
 
     return part_capt/n_particles
