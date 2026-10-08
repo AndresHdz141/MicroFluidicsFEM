@@ -41,23 +41,23 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
     #Generar fluido
     if simular_nuevo
     println("SIMULANDO FLUIDO")
-    fluid_sim(longitud_u, altura_u, vel_buffer_u, num_ranuras, "Campo_Fluido", angulo)
+    fluid_sim(longitud_u, altura_u, vel_buffer_u, num_ranuras, "Campo_Fluido", angulo, 0.05)
     #Generar tres arreglos de imanes
     println("_________________________")
     
     #Unipolar
     println("SIMULANDO ARREGLO UNIPOLAR")
-    mag_sim(longitud_u, altura_u, cant_imanes, 0, "Unipolar", dist_imanes_u)
+    mag_sim(longitud_u, altura_u, cant_imanes, 0, "Unipolar", dist_imanes_u, 0.1)
     println("_________________________")
 
     #Alterno
     println("SIMULANDO ARREGLO ALTERNO")
-    mag_sim(longitud_u, altura_u, cant_imanes, 1, "Alterno", dist_imanes_u)
+    mag_sim(longitud_u, altura_u, cant_imanes, 1, "Alterno", dist_imanes_u, 0.1)
     println("_________________________")
 
     #Halbach
     println("SIMULANDO ARREGLO HALBACH")
-    mag_sim(longitud_u, altura_u, cant_imanes, 2, "Halbach", dist_imanes_u)
+    mag_sim(longitud_u, altura_u, cant_imanes, 2, "Halbach", dist_imanes_u, 0.1)
     println("_________________________")
     end
     #Preguntar tipo de particula
@@ -119,9 +119,9 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
         )
 
         #Generar Graficos
-            AnimateParticles(data2, f_data[1], mag_data[1], 0.4, 0.01)
+            #AnimateParticles(data1, f_data[1], mag_data[1], 0.4, 0.01)
             #PlotTray(data, f_data[1], mag_data[1], env, particle_1_data[7]/2)
-            plotparticles(data1, data2, f_data[1], mag_data[1])
+            plot_particles(data1, data2, f_data[1], mag_data[1])
         
         simulate_again = ask_simulate_again()
     end
@@ -146,5 +146,5 @@ main_run(
     75,           #Velocidad buffer | μm/s
     2,            #Num. ranuras     | n
     2,            #Num. imanes      | n
-    500              #Num. Particulas  | n
+    1000              #Num. Particulas  | n
     )

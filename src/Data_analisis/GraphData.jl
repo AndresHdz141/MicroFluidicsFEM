@@ -34,7 +34,7 @@ function draw_boundaries!(ax, grid; scale = 1.0)
     for (name, _) in grid.facetsets                  # every set in the grid
         pts = facet_segments(grid, name) .* scale
         isempty(pts) && continue
-        linesegments!(ax, pts; color = :black,linewidth = 2, label = "")
+        linesegments!(ax, pts; color = :black,linewidth = 2)
     end
 end
 
