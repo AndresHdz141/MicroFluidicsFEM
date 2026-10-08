@@ -130,7 +130,7 @@ function particle_simulation(name, channel_height, f_data, mag_data, env, partic
     #all_particle_2_data = simulate_part(particle_2_data, n_particles, dt, max_steps, save_interval, f_data, mag_data, env, fluid_eval, mag_eval, 37)
     #Guardar la variable de toda la informacion en un JLD2, para posprocesamiento despues
     path = joinpath("data", "particle_sim_data", name * ".jld2")
-    jldsave(path; data = dat)
+    jldsave(path; data = all_particle_data)
     
 
     pseudo_val, part_capt = inenout(all_particle_data, channel_height, env)
