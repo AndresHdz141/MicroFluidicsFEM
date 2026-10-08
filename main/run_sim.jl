@@ -64,8 +64,8 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
 
         
         array_type = ask_array_type()
-        fluid_location_data = joinpath(@__DIR__, "..","data", "particle_sim_data", "Campo_Fluido.jld2")
-        magnet_location_data = joinpath(@__DIR__, "..","data", "particle_sim_data",array_type)
+        fluid_location_data = joinpath(@__DIR__, "..","data", "campo_fluido", "Campo_Fluido.jld2")
+        magnet_location_data = joinpath(@__DIR__, "..","data", "arreglos_imanes",array_type)
         #Leer campo de fluido y de campo magnetico
             file = jldopen(fluid_location_data, "r")
             f_name =  file["f_name"]
