@@ -96,20 +96,30 @@ function main_run(longitud_micro,altura_micro, angulo_canal,dist_imanes_micro, v
         println(particle_1_data)
         println(particle_2_data)
 
-        pseudo_val,real_eff, data= particle_simulation(
-            particle_data[2],
+        pseudo_val,real_eff, data1= particle_simulation(
+            particle_1_data[2],
             altura_u,
             f_data,
             mag_data,
             env,
             particle_1_data,
+            n_particulas
+        )
+        pseudo_val2,real_eff2, data2= particle_simulation(
+            particle_2_data[2],
+            altura_u,
+            f_data,
+            mag_data,
+            env,
             particle_2_data,
             n_particulas
         )
-        #Generar Graficos
-            AnimateParticles(data, f_data[1], mag_data[1], 0.4, 0.01)
-            PlotTray(data, f_data[1], mag_data[1], env, particle_data[7]/2)
 
+        #Generar Graficos
+            AnimateParticles(data2, f_data[1], mag_data[1], 0.4, 0.01)
+            #PlotTray(data, f_data[1], mag_data[1], env, particle_1_data[7]/2)
+            plotparticles(data1, data2, f_data[1], mag_data[1])
+        
         simulate_again = ask_simulate_again()
     end
 end
