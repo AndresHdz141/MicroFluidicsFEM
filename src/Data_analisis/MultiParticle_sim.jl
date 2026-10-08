@@ -17,7 +17,7 @@ function plot_particles(data_infectada, data_sana, grid, mag_grid,
     
     function draw_trajectories!(part, color, name)
         pos = Point2f.(part.pos)
-        idx = 1:70:length(pos)
+        idx = 1:60:length(pos)
         n = length(idx)
 
         scatter!(ax, pos[idx], marker = Circle, color = color, 

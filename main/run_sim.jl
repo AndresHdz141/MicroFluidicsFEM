@@ -123,12 +123,12 @@ end
 =#
 
 main_run(
-    280,          #longitud Canal   | μm
-    40,           #Altura Canal     | μm
-    35,           #Angulo del Canal | °
-    10,           #Dist iman-canal  | μm
-    80,           #Velocidad buffer | μm/s
-    5,            #Num. ranuras     | n
-    4,            #Num. imanes      | n
-    100              #Num. Particulas  | n
+    271,          #longitud Canal   | μm
+    30,           #Altura Canal     | μm
+    42,           #Angulo del Canal | °
+    11,           #Dist iman-canal  | μm
+    75,           #Velocidad buffer | μm/s
+    2,            #Num. ranuras     | n
+    2,            #Num. imanes      | n
+    500              #Num. Particulas  | n
     )
