@@ -1,3 +1,7 @@
 campo_fluido/
 arreglos_imanes/
 *.jld2
+visual_imanes/
+*.vtu
+visual_fluido/
+*.vtu

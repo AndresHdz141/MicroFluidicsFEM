@@ -15,7 +15,7 @@ using .simulate_fluid
 using .simulate_magnet
 using .simulate_cell
 
-using BayesianOptimization, GaussianProcesses, CSV, DataFrames, JLD2, Random
+using BayesianOptimization, GaussianProcesses, CSV, DataFrames, JLD2, Random, Statistics
 
 function optimize_function()
 
@@ -60,11 +60,13 @@ function optimize_function()
         names = ("Unipolar", "Alterno", "Halbach")
 
         # "0 - Unipolar | 1 - Alterno | 2 - Halbach"
-        select_array = 2
+        select_array = 0
         array_type = names[select_array + 1] # Simplified selection logic
 
         # Run simulations
         fluid_sim(longitud_u, altura_u, vel_buffer_u, num_ranuras, "Campo_Fluido", angulo)
+        #mag_sim(longitud_u, altura_u, cant_imanes, 0, "Unipolar", dist_imanes_u, 0.8)  # absorbe el estado residual
+
         mag_sim(longitud_u, altura_u, cant_imanes, select_array, array_type, dist_imanes_u)
 
         mag_rad_name = array_type * ".jld2"
@@ -86,13 +88,12 @@ function optimize_function()
         f_data = (f_grid, f_dh, f_field)
         mag_data = (mag_grid, mag_dh.dh, mag_field)
 
-        total_pseudo = 0.0
-        total_real = 0.0
+        pseudo_vals = Float64[]
         current_real_individuals = zeros(4)
         for i in 2:4
             matching_rows = filter(row -> row.tag == i, df_particles)
             particle_data = Vector(matching_rows[1, :])
-
+            println("TAG $i -> ", particle_data)
             pseudo_val,real_eff, data = particle_simulation(
                 particle_data[2],
                 altura_u,
@@ -103,63 +104,68 @@ function optimize_function()
                 n_particulas
             )
                 current_real_individuals[i] = real_eff
-                total_pseudo += pseudo_val
-                total_real += real_eff
+                push!(pseudo_vals, pseudo_val)
         end
-        pseudo_promedio = total_pseudo / 3.0
+        pseudo_promedio = mean(pseudo_vals)
+        pseudo_sd = std(pseudo_vals)
+        objective_value = pseudo_promedio - (0.5 * pseudo_sd)
         
-        if pseudo_promedio > best_run_tracker.max_pseudo[]
-            best_run_tracker.max_pseudo[] = pseudo_promedio
-            best_run_tracker.max_real_eff[] = total_real
+        if objective_value > best_run_tracker.max_pseudo[]
+            best_run_tracker.max_pseudo[] = objective_value
+            best_run_tracker.max_real_eff[] = sum(current_real_individuals)
             best_run_tracker.best_individuals .= current_real_individuals
         end
         
         return pseudo_promedio
     end
 
-lower_bounds = [270.0, 35.0, 30.0, 5.0, 80.0, 2.0, 2.0]
-upper_bounds = [300.0, 45.0, 45.0, 25.0, 120.0, 6.0, 8.0]
+# longitud, altura, angulo, dist_imanes, vel_buffer,num_ranuras,cant_imanes
+lower_bounds = [230.0, 30.0, 30.0, 2.0]
+upper_bounds = [300.0, 45.0, 45.0, 15.0]
 
 to_physical(u) = lower_bounds .+ u .* (upper_bounds .- lower_bounds)
-known_good_var = [280.0, 40.0, 35.0, 10.0, 80.0, 5.0, 4.0]
+known_good_var = [260.0, 35.0, 30.0, 5.0]
+#known_good_var2 = [300.0,41.0,30.0,5.0,75.0,2.0,2.0]
 known_good_u = (known_good_var .- lower_bounds) ./ (upper_bounds .- lower_bounds)
+#known_good_u_2 = (known_good_var2 .- lower_bounds) ./ (upper_bounds .- lower_bounds)
 
 function decode(u)
     x = to_physical(u)
     return (
-        longitud     = x[1],
-        altura       = x[2],
-        angulo       = x[3],
-        dist_imanes  = x[4],
-        vel_buffer   = x[5],
-        num_ranuras  = clamp(round(Int, x[6]), 2, 6),
-        cant_imanes  = clamp(round(Int, x[7]), 2, 8),
+        longitud     = round(Float64, x[1]),
+        altura       = round(Float64, x[2]),
+        angulo       = round(Float64, x[3]),
+        dist_imanes  = round(Float64, x[4]),
+        vel_buffer   = 75.0,
+        num_ranuras  = 2,
+        cant_imanes  = 2,
     )
 end
 # inside blackbox_function(u):  x = to_physical(u)  and use x[1], x[2], ...
 
-X_init = rand(7, 20)                                  # unit cube
+X_init = rand(4, 15)                                  # unit cube
 X_init[:,1] = known_good_u
+#X_init[:,2] = known_good_u_2
 
-y_init = [blackbox_function(X_init[:, j]) for j in 1:20]
+y_init = [blackbox_function(X_init[:, j]) for j in 1:15]
 
-model = ElasticGPE(7,
+model = ElasticGPE(4,
     mean = MeanConst(0.0),
-    kernel = SEArd(fill(log(0.3), 7), log(50.0)),     # 7 log-lengthscales + log σ
+    kernel = SEArd(fill(log(0.3), 4), log(50.0)),     # 7 log-lengthscales + log σ
     logNoise = -2.0,
     capacity = 3000)
 append!(model, X_init, y_init)
 
 modeloptimizer = MAPGPOptimizer(
-    every = 10,
+    every = 5,
     noisebounds = [-4.0, 1.0],
-    kernbounds = [[fill(-3.0, 7); -1.0], [fill(1.0, 7); 6.0]],
+    kernbounds = [[fill(-3.0, 4); -1.0], [fill(1.0, 4); 6.0]],
     maxeval = 100)
 
 opt = BOpt(blackbox_function, model, ExpectedImprovement(), modeloptimizer,
-           zeros(7), ones(7);
+           zeros(4), ones(4);
            maxiterations = 50,
-           initializer_iterations = 5)
+           initializer_iterations = 10)
 
 result = boptimize!(opt)
 best = decode(result.observed_optimizer)
@@ -174,8 +180,11 @@ best = decode(result.observed_optimizer)
     println("=============================================")
 
     # save it
-    CSV.write(joinpath(@__DIR__, "best_params.csv"), DataFrame([best]))
-    jldsave(joinpath(@__DIR__, "best_params.jld2"); best, efficiency = result.observed_optimum)
+    arreglo = "uniforme_1"
+    name_csv = "best_params_" * arreglo * ".csv"
+    name_jld2 = "best_params_" * arreglo * ".jld2"
+    CSV.write(joinpath(@__DIR__, name_csv), DataFrame([best]))
+    jldsave(joinpath(@__DIR__, name_jld2); best, efficiency = result.observed_optimum)
     return result
 end
 

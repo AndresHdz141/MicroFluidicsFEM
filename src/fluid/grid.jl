@@ -6,6 +6,8 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
     function setup_grid(L, height, phi,n_ranuras, h=0.5)
         a = L/2
         Gmsh.initialize()
+        gmsh.clear()
+
         gmsh.option.set_number("General.Verbosity", 2)
 
         #Coordenadas de puntos
@@ -98,7 +100,7 @@ using Ferrite, FerriteGmsh, Gmsh, Tensors, LinearAlgebra, SparseArrays
         push!(groove_points, points_ranuras_sup[i+1]) # sube a la ranura
         i += 2
         end
-        println("groove_points: ", groove_points)
+        #println("groove_points: ", groove_points)
         # Si 2n-1 es impar, sobra un índice
         if i <= length(points_ranuras_inf)
             push!(groove_points, points_ranuras_sup[i])
