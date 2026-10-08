@@ -9,6 +9,8 @@ include("magnet_sim.jl")
 include("fluid_sim.jl")
 include("simulate_particle.jl")
 include("../src/Data_analisis/GraphData.jl")
+include("../src/Data_analisis/MultiParticle_sim.jl")
+
 
 using .structdata
 using .ask_data
@@ -16,6 +18,7 @@ using .simulate_fluid
 using .simulate_magnet
 using .simulate_cell
 using .DataGraph
+using .MultiParticle
 
 
 using CSV, DataFrames, JLD2
